@@ -27,7 +27,7 @@ include_directories(${MPI_CXX_INCLUDE_PATH})
 set(CMAKE_CXX_COMPILE_FLAGS ${CMAKE_CXX_COMPILE_FLAGS} ${MPI_CXX_COMPILE_FLAGS})
 
 if(CMAKE_COMPILER_IS_GNUCXX)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pedantic -std=c++11 -fopenmp")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fopenmp")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -ffast-math")
 elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
@@ -51,3 +51,10 @@ message(STATUS "HOSTNAME is " ${HOSTNAME})
 message(STATUS "CMAKE_BUILD_TYPE is " ${CMAKE_BUILD_TYPE})
 
 #----------------------------------------------------------------------
+add_library(Dust Dust.C)
+set(DNSLIBS Dust)
+
+#----------------------------------------------------------------------
+add_executable(LegranditeTest LegranditeTest.C)
+target_link_libraries(LegranditeTest ${DNSLIBS} ${LIBRARIESLIST})
+add_test(LegranditeTest LegranditeTest)
