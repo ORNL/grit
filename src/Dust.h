@@ -13,7 +13,6 @@ class Dust {
     Kokkos::View<double    [NDUST]    > age  ;
     Kokkos::View<double    [NDUST]    > dob  ;
     Kokkos::View<uint64_t  [NDUST]    > ssn  ;
-    Kokkos::View<uint32_t  [NDUST]    > pob  ;
     Kokkos::View<st_type   [NDUST]    > state;
     Kokkos::View<double    [NDUST][3] > loc  ;
 
@@ -41,6 +40,10 @@ class Dust {
 
   public:
     Dust(uint64_t ssn_start=0);
+
+  protected:
+    void init_ssn(uint64_t ssn_start=0);
+
 };
 
 #endif
