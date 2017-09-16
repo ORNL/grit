@@ -10,6 +10,9 @@ class Dust {
     enum STATE : uint32_t;
     using st_type = typename std::underlying_type<STATE>::type;
 
+    typedef Kokkos::View<double [NDUST]    > ScalarPointType;
+    typedef Kokkos::View<double [NDUST][3] > LocationVecType;
+
     Kokkos::View<double    [NDUST]    > age  ;
     Kokkos::View<double    [NDUST]    > dob  ;
     Kokkos::View<uint64_t  [NDUST]    > ssn  ;
