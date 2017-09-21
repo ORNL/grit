@@ -7,25 +7,33 @@
 
 const int NX=115, NY= 84, NZ= 93; // Per MPI rank problem size
 const int NH=1;
-float mx=1.4, my=0.8, mz=1.1; //No. of full waves across NX, NY, NZ
+const float mx=1.4, my=0.8, mz=1.1; //No. of full waves across NX, NY, NZ
 
 class DustTest : public Dust {
+  private:
+    typedef Kokkos::Random_XorShift64_Pool<> GeneratorPool;
   public:
     DustTest() {
-      init_position();
+      GeneratorPool pool(23791);
+      Kokkos::parallel_for(NDUST, init_position(pool, loc));
     };
-  private:
-    void init_position() {
-      Kokkos::Random_XorShift64_Pool<> rand_pool(23791);
-      Kokkos::View<double [NDUST]> randloc("randloc");
-      Kokkos::fill_random(randloc, rand_pool, NX);
-      Kokkos::parallel_for(NDUST, KOKKOS_LAMBDA(const size_t n) { loc(n,0)=randloc(n); } );
-      Kokkos::fill_random(randloc, rand_pool, NY);
-      Kokkos::parallel_for(NDUST, KOKKOS_LAMBDA(const size_t n) { loc(n,1)=randloc(n); } );
-      Kokkos::fill_random(randloc, rand_pool, NZ);
-      Kokkos::parallel_for(NDUST, KOKKOS_LAMBDA(const size_t n) { loc(n,2)=randloc(n); } );
+    /* ---------------------------------------------------------------------- */
+    struct init_position {
+      GeneratorPool pool;
+      LocationVecType loc;
+      //constructor
+      init_position(GeneratorPool pool_, LocationVecType loc_)
+        : pool(pool_), loc(loc_) { } ;
+      KOKKOS_INLINE_FUNCTION
+      void operator()(const size_t n) const {
+        GeneratorPool::generator_type gen = pool.get_state();
+        loc(n,0)=gen.drand(NX);
+        loc(n,1)=gen.drand(NY);
+        loc(n,2)=gen.drand(NZ);
+        pool.free_state(gen);
+      }
     };
-
+    /* ---------------------------------------------------------------------- */
 };
 
 int main(int argc, char *argv[]){
@@ -59,14 +67,14 @@ int main(int argc, char *argv[]){
            * cos(tracers.loc(n,2)*kz);
   } );
 
-  Legrandite<NH>::interpolate(NX, NY, NZ, F, tracers.loc, P);
+  Legrandite<NH>::interpolate(NX, NY, NZ, F, tracers.loc, tracers.state, P);
 
   double err;
   size_t nd=DustTest::NDUST;
   Kokkos::parallel_reduce(nd, KOKKOS_LAMBDA(const size_t& n, double& lsum) {
-      lsum+=(P(n)-Q(n))*(P(n)-Q(n));
+      if(tracers.state(n)==Dust::HEALTHY) lsum+=(P(n)-Q(n))*(P(n)-Q(n));
   }, err);
-  err/=double(nd);
+  err=sqrt(err/double(nd));
   printf("NH NY NX NZ are %1d %4d %4d %4d\n", NH, NX, NY, NZ);
   printf("L2 norm error is %12.5e\n", err);
 

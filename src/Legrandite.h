@@ -6,10 +6,12 @@ class Legrandite {
   public:
     /* ---------------------------------------------------------------------- */
     static void interpolate(int NX, int NY, int NZ,
-            Yarn::StridedScalarFieldType F, Dust::LocationVecType loc, Dust::ScalarPointType P){
+            Yarn::StridedScalarFieldType F, Dust::LocationVecType loc,
+            Dust::PointHealthType state, Dust::ScalarPointType P){
       /* ---------------------------------------------------------------------- */
       assert(F.dimension_0()==(NX+1+2*NH)*(NY+1+2*NH)*(NZ+1+2*NH));
       Kokkos::parallel_for(Dust::NDUST, KOKKOS_LAMBDA(const size_t& n) {
+          if(state(n)!=Dust::HEALTHY) return;
           int ix=floor(loc(n,0));
           int jy=floor(loc(n,1));
           int kz=floor(loc(n,2));

@@ -51,10 +51,6 @@ message(STATUS "HOSTNAME is " ${HOSTNAME})
 message(STATUS "CMAKE_BUILD_TYPE is " ${CMAKE_BUILD_TYPE})
 
 #----------------------------------------------------------------------
-add_library(Dust Dust.C)
-set(DNSLIBS Dust)
-
-#----------------------------------------------------------------------
 add_executable(LegranditeTest LegranditeTest.C)
 target_link_libraries(LegranditeTest ${DNSLIBS} ${LIBRARIESLIST})
 add_test(LegranditeTest LegranditeTest)

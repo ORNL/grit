@@ -10,8 +10,9 @@ class Dust {
     enum STATE : uint32_t;
     using st_type = typename std::underlying_type<STATE>::type;
 
-    typedef Kokkos::View<double [NDUST]    > ScalarPointType;
-    typedef Kokkos::View<double [NDUST][3] > LocationVecType;
+    typedef Kokkos::View<double  [NDUST]    > ScalarPointType;
+    typedef Kokkos::View<double  [NDUST][3] > LocationVecType;
+    typedef Kokkos::View<st_type [NDUST]    > PointHealthType;
 
     Kokkos::View<double    [NDUST]    > age  ;
     Kokkos::View<double    [NDUST]    > dob  ;
@@ -38,15 +39,34 @@ class Dust {
        DEATH_HOLE           , // !Kill particles that defy logic
        NBR_NOSPACE          , // !Neighbor has no space to receive
        DIVISION_BY_ZERO     , //
-       DRIFTED                // !Drifted away from the intended location
+       DRIFTED              , // !Drifted away from the intended location
+       INVALID                //
     };
 
   public:
-    Dust(uint64_t ssn_start=0);
-
-  protected:
-    void init_ssn(uint64_t ssn_start=0);
-
+    // constructor
+    Dust(uint64_t ssn_start=0) {
+      age   = Kokkos::View<double    [NDUST]    > ("age"  );
+      dob   = Kokkos::View<double    [NDUST]    > ("dob"  );
+      ssn   = Kokkos::View<uint64_t  [NDUST]    > ("ssn"  );
+      state = Kokkos::View<st_type   [NDUST]    > ("state");
+      loc   = Kokkos::View<double    [NDUST][3] > ("loc"  );
+      Kokkos::parallel_for(NDUST, init_ssn(ssn, ssn_start));
+      Kokkos::fence();
+    }
+    /* ---------------------------------------------------------------------- */
+    struct init_ssn {
+      uint64_t ssn_start;
+      Kokkos::View<uint64_t  [NDUST]    > ssn  ;
+      //constructor
+      init_ssn(Kokkos::View<uint64_t [NDUST]> ssn_, uint64_t ssn_start_)
+        : ssn(ssn_), ssn_start(ssn_start_) { };
+      KOKKOS_INLINE_FUNCTION
+      void operator()(const size_t n) const {
+        ssn(n) = ssn_start+n;
+      }
+    };
+    /* ---------------------------------------------------------------------- */
 };
 
 #endif
