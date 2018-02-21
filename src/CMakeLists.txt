@@ -16,6 +16,8 @@ find_package(kokkos REQUIRED)
 include_directories(${KOKKOS_INCLUDE_DIRS})
 find_package(BLAS)
 find_package(LAPACK)
+find_package(Boost COMPONENTS system mpi serialization program_options REQUIRED)
+include_directories(${BOOST_INCLUDE_DIRS})
 find_package(MPI REQUIRED)
 
 #----------------------------------------------------------------------
@@ -43,7 +45,7 @@ if(NOT HOSTNAME)
 endif()
 
 #----------------------------------------------------------------------
-set(LIBRARIESLIST ${LAPACK_LIBRARIES} ${KOKKOS_LIBRARIES} ${MPI_CXX_LIBRARIES} ${CMAKE_DL_LIBS})
+set(LIBRARIESLIST ${LAPACK_LIBRARIES} ${Boost_LIBRARIES} ${KOKKOS_LIBRARIES} ${MPI_CXX_LIBRARIES} ${CMAKE_DL_LIBS})
 include_directories(${CMAKE_SOURCE_DIR})
 
 #----------------------------------------------------------------------
@@ -54,3 +56,7 @@ message(STATUS "CMAKE_BUILD_TYPE is " ${CMAKE_BUILD_TYPE})
 add_executable(LegranditeTest LegranditeTest.C)
 target_link_libraries(LegranditeTest ${DNSLIBS} ${LIBRARIESLIST})
 add_test(LegranditeTest LegranditeTest)
+
+add_executable(ConstantVelAdvectTest ConstantVelAdvectTest.C)
+target_link_libraries(ConstantVelAdvectTest ${DNSLIBS} ${LIBRARIESLIST})
+add_test(ConstantVelAdvectTest ConstantVelAdvectTest)
