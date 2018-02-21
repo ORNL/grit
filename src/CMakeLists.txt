@@ -44,6 +44,16 @@ if(NOT HOSTNAME)
   SITE_NAME(HOSTNAME)
 endif()
 
+if(${HOSTNAME} MATCHES "^summitdev")
+  set(SERIALEXEC "jsrun")
+  set(SERIALEXEC_PREFLAGS "-p1 -g1")
+elseif(${HOSTNAME} MATCHES "^percival")
+  set(SERIALEXEC "aprun")
+  set(MPIEXEC "aprun")
+  set(MPIEXEC_NUMPROC_FLAG "-n")
+  set(LAPACK_LIBRARIES "") #Compiler brings this in
+endif()
+
 #----------------------------------------------------------------------
 set(LIBRARIESLIST ${LAPACK_LIBRARIES} ${Boost_LIBRARIES} ${KOKKOS_LIBRARIES} ${MPI_CXX_LIBRARIES} ${CMAKE_DL_LIBS})
 include_directories(${CMAKE_SOURCE_DIR})
@@ -55,8 +65,8 @@ message(STATUS "CMAKE_BUILD_TYPE is " ${CMAKE_BUILD_TYPE})
 #----------------------------------------------------------------------
 add_executable(LegranditeTest LegranditeTest.C)
 target_link_libraries(LegranditeTest ${DNSLIBS} ${LIBRARIESLIST})
-add_test(LegranditeTest LegranditeTest)
+add_test(LegranditeTest ${SERIALEXEC} ${SERIALEXEC_PREFLAGS} LegranditeTest)
 
 add_executable(ConstantVelAdvectTest ConstantVelAdvectTest.C)
 target_link_libraries(ConstantVelAdvectTest ${DNSLIBS} ${LIBRARIESLIST})
-add_test(ConstantVelAdvectTest ConstantVelAdvectTest)
+add_test(ConstantVelAdvectTest ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 8 ${MPIEXEC_PREFLAGS} ConstantVelAdvectTest)

@@ -38,6 +38,8 @@ class DustTest : public Dust {
 
 int main(int argc, char *argv[]){
   Kokkos::initialize();
+  printf ("%s on Kokkos execution space %s\n", argv[0], typeid (Kokkos::DefaultExecutionSpace).name());
+  Kokkos::DefaultExecutionSpace::print_configuration(std::cout);
 
   double pi=4.0*atan(1.0);
   const size_t NG=(NX+1+2*NH)*(NY+1+2*NH)*(NZ+1+2*NH);
@@ -67,7 +69,22 @@ int main(int argc, char *argv[]){
            * cos(tracers.loc(n,2)*kz);
   } );
 
+  typedef std::chrono::high_resolution_clock Time;
+  typedef std::chrono::duration<float> fsec;
+  Kokkos::fence();
+  auto start_clock=Time::now();
+
+  int numsteps=10;
+  for(int i=0; i<numsteps; i++) {
   Legrandite<NH>::interpolate(NX, NY, NZ, F, tracers.loc, tracers.state, P);
+  }
+
+  Kokkos::fence();
+  auto finish_clock=Time::now();
+  fsec fs=finish_clock-start_clock;
+  printf("NDUST is %zu\n", tracers.NDUST);
+  printf("Time taken          is %6.3f (msecs) \n", fs.count()*1e3                                     );
+  printf("Time taken per step is %6.3f (nsecs) \n", fs.count()*1e9/float(numsteps)/float(tracers.NDUST));
 
   double err;
   size_t nd=DustTest::NDUST;
