@@ -1,0 +1,7 @@
+#TPLs can be checked out here or soft linked, but should not be part of this repo
+BoxLib
+kokkos
+GPTL
+cantera
+silo
+Eigen3
