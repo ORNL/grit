@@ -59,7 +59,8 @@ elseif(${HOSTNAME} MATCHES "^percival")
 endif()
 
 #----------------------------------------------------------------------
-set(LIBRARIESLIST ${LAPACK_LIBRARIES} ${Boost_LIBRARIES} ${KOKKOS_LIBRARIES} ${MPI_CXX_LIBRARIES} ${CMAKE_DL_LIBS})
+set(LIBRARIESLIST ${LAPACK_LIBRARIES} ${Boost_LIBRARIES} ${KOKKOS_LIBRARIES} ${MPI_CXX_LIBRARIES}
+        ${SILO_LIBRARIES} ${HDF5_LIBRARIES} ${CMAKE_DL_LIBS})
 include_directories(${CMAKE_SOURCE_DIR})
 
 #----------------------------------------------------------------------
@@ -74,3 +75,7 @@ add_test(LegranditeTest ${SERIALEXEC} ${SERIALEXEC_PREFLAGS} LegranditeTest)
 add_executable(ConstantVelAdvectTest ConstantVelAdvectTest.C)
 target_link_libraries(ConstantVelAdvectTest ${DNSLIBS} ${LIBRARIESLIST})
 add_test(ConstantVelAdvectTest ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 8 ${MPIEXEC_PREFLAGS} ConstantVelAdvectTest)
+
+add_executable(SiloWriterTest SiloWriterTest.C)
+target_link_libraries(SiloWriterTest ${DNSLIBS} ${LIBRARIESLIST})
+add_test(SiloWriterTest ${SERIALEXEC} ${SERIALEXEC_PREFLAGS} SiloWriterTest)
