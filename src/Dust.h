@@ -14,14 +14,17 @@ class Dust {
 
     typedef Kokkos::View<double   [NDUST]    > ScalarPointType;
     typedef Kokkos::View<double   [NDUST][3] > Vectr3PointType;
-    typedef Kokkos::View<st_type  [NDUST]    > PointHealthType;
-    typedef Vectr3PointType                    LocationVecType;
+    typedef Kokkos::View<st_type  [NDUST]    > HealthPointType;
+    typedef Kokkos::View<double   [NDUST][3] > LocatnPointType;
+    typedef Kokkos::View<uint64_t  [NDUST]   > SSNumbPointType;
+    typedef LocatnPointType LocationVecType;
+    typedef HealthPointType PointHealthType;
 
-    Kokkos::View<double    [NDUST]    > age  ;
-    Kokkos::View<double    [NDUST]    > dob  ;
-    Kokkos::View<uint64_t  [NDUST]    > ssn  ;
-    Kokkos::View<st_type   [NDUST]    > state;
-    LocationVecType                     loc  ;
+    ScalarPointType age  ;
+    ScalarPointType dob  ;
+    SSNumbPointType ssn  ;
+    HealthPointType state;
+    LocatnPointType loc  ;
 
     std::map<std::string, ScalarPointType> ScalarPointVariables;
     std::map<std::string, Vectr3PointType> Vectr3PointVariables;
@@ -52,11 +55,11 @@ class Dust {
   public:
     // constructor
     Dust(uint64_t ssn_start=0) {
-      age   = Kokkos::View<double    [NDUST]    > ("age"  );
-      dob   = Kokkos::View<double    [NDUST]    > ("dob"  );
-      ssn   = Kokkos::View<uint64_t  [NDUST]    > ("ssn"  );
-      state = Kokkos::View<st_type   [NDUST]    > ("state");
-      loc   = Kokkos::View<double    [NDUST][3] > ("loc"  );
+      age   = ScalarPointType ("age"  );
+      dob   = ScalarPointType ("dob"  );
+      ssn   = SSNumbPointType ("ssn"  );
+      state = HealthPointType ("state");
+      loc   = LocatnPointType ("loc"  );
       Kokkos::parallel_for(NDUST, init_ssn(ssn, ssn_start));
       Kokkos::fence();
     }
