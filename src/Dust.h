@@ -16,7 +16,7 @@ class Dust {
     typedef Kokkos::View<double   [NDUST][3] > Vectr3PointType;
     typedef Kokkos::View<st_type  [NDUST]    > HealthPointType;
     typedef Kokkos::View<double   [NDUST][3] > LocatnPointType;
-    typedef Kokkos::View<uint64_t  [NDUST]   > SSNumbPointType;
+    typedef Kokkos::View<uint64_t [NDUST]    > SSNumbPointType;
     typedef LocatnPointType LocationVecType;
     typedef HealthPointType PointHealthType;
 
@@ -81,21 +81,39 @@ class Dust {
       sprintf(filename, "%s.silo", prefix.c_str());
       DBfile *file=nullptr;
       file=DBCreate(filename, DB_CLOBBER, DB_LOCAL, NULL, DB_HDF5);
-
+      write_silo_mesh(file);
+      DBClose(file);
+      return;
+    }
+    /* ---------------------------------------------------------------------- */
+    void write_silo_mesh(DBfile *file, std::string prefix="Points") const {
       std::vector<double> xvVec, yvVec, zvVec;
       get_vertex_coordinates(xvVec, yvVec, zvVec);
       double* coords[3]={xvVec.data(), yvVec.data(), zvVec.data()};
       char meshname[100];
-      sprintf(meshname, "DustPoint");
+      sprintf(meshname, "%s", prefix.c_str());
       DBPutPointmesh(file, meshname, 3, coords, NDUST, DB_DOUBLE, NULL);
+
+      ScalarPointType::HostMirror   ageHost = Kokkos::create_mirror_view(  age);
+      ScalarPointType::HostMirror   dobHost = Kokkos::create_mirror_view(  dob);
+      SSNumbPointType::HostMirror   ssnHost = Kokkos::create_mirror_view(  ssn);
+      HealthPointType::HostMirror stateHost = Kokkos::create_mirror_view(state);
+      Kokkos::deep_copy(   ageHost,   age);
+      Kokkos::deep_copy(   dobHost,   dob);
+      Kokkos::deep_copy(   ssnHost,   ssn);
+      Kokkos::deep_copy( stateHost, state);
+
+      DBPutPointvar1 (file,   "age", "Points",   age.data(), NDUST, DB_DOUBLE, NULL);
+      DBPutPointvar1 (file,   "dob", "Points",   dob.data(), NDUST, DB_DOUBLE, NULL);
+      DBPutPointvar1 (file,   "ssn", "Points",   ssn.data(), NDUST, DB_LONG_LONG, NULL);
+      DBPutPointvar1 (file, "state", "Points", state.data(), NDUST, DB_INT   , NULL);
 
       for(auto it : ScalarPointVariables) {
         ScalarPointType v=it.second;
         ScalarPointType::HostMirror vHost = Kokkos::create_mirror_view(v);
         Kokkos::deep_copy(vHost, v);
-        DBPutPointvar1 (file, it.first.c_str(), "DustPoint", vHost.data(), NDUST, DB_DOUBLE, NULL);
+        DBPutPointvar1 (file, it.first.c_str(), "Points", vHost.data(), NDUST, DB_DOUBLE, NULL);
       }
-      DBClose(file);
       return;
     }
     /* ---------------------------------------------------------------------- */
