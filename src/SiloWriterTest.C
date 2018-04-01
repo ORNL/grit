@@ -1,7 +1,6 @@
 #include "Yarn.h"
 #include "Dust.h"
-#include "Inego.h"
-#include "Legrandite.h"
+#include "Lint.h"
 
 #include <Kokkos_Random.hpp>
 
@@ -13,8 +12,8 @@ class DustTest : public Dust {
   private:
     typedef Kokkos::Random_XorShift64_Pool<> GeneratorPool;
   public:
-    DustTest() {
-      GeneratorPool pool( 4911);
+    DustTest(uint32_t seed=4911) {
+      GeneratorPool pool(seed);
       Kokkos::parallel_for(NDUST, init_position(pool, loc));
       Dust::ScalarPointType P("P");
       Dust::ScalarPointType Q("Q");
@@ -47,22 +46,29 @@ int main(int argc, char *argv[]){
 
   double pi=4.0*atan(1.0);
   const size_t NG=(NX+1+2*NH)*(NY+1+2*NH)*(NZ+1+2*NH);
-  DustTest tracers;
 
-  Kokkos::parallel_for(DustTest::NDUST, KOKKOS_LAMBDA(const size_t& n) {
-      double kx=2.0*pi*mx/NX;
-      double ky=2.0*pi*my/NY;
-      double kz=2.0*pi*mz/NZ;
-      DustTest::ScalarPointType P, Q;
-      P=tracers.ScalarPointVariables.find("P")->second;
-      Q=tracers.ScalarPointVariables.find("Q")->second;
-      P (n)= cos(tracers.loc(n,0)*kx)
-           * cos(tracers.loc(n,1)*ky)
-           * cos(tracers.loc(n,2)*kz);
-      Q(n)=  1.0 - P(n);
-  } );
 
-  tracers.write_silo();
+  Lint<DustTest> Parcels;
+  int numparcels=11;
+
+  for(int n=0; n<numparcels; n++) {
+    DustTest tracers(345+n);
+    Kokkos::parallel_for(DustTest::NDUST, KOKKOS_LAMBDA(const size_t& n) {
+        double kx=2.0*pi*mx/NX;
+        double ky=2.0*pi*my/NY;
+        double kz=2.0*pi*mz/NZ;
+        DustTest::ScalarPointType P, Q;
+        P=tracers.ScalarPointVariables.find("P")->second;
+        Q=tracers.ScalarPointVariables.find("Q")->second;
+        P (n)= cos(tracers.loc(n,0)*kx)
+             * cos(tracers.loc(n,1)*ky)
+             * cos(tracers.loc(n,2)*kz);
+        Q(n)=  1.0 - P(n);
+    } );
+    Parcels.push_back(tracers);
+  }
+
+  Parcels.write_silo();
 
   Kokkos::finalize();
   return(0);

@@ -77,7 +77,7 @@ class Dust {
     };
     /* ---------------------------------------------------------------------- */
     void write_silo(std::string prefix="Dust") const {
-      char filename[100];
+      char filename[1000];
       sprintf(filename, "%s.silo", prefix.c_str());
       DBfile *file=nullptr;
       file=DBCreate(filename, DB_CLOBBER, DB_LOCAL, NULL, DB_HDF5);
@@ -90,7 +90,11 @@ class Dust {
       std::vector<double> xvVec, yvVec, zvVec;
       get_vertex_coordinates(xvVec, yvVec, zvVec);
       double* coords[3]={xvVec.data(), yvVec.data(), zvVec.data()};
-      char meshname[100];
+      char dirname[1000];
+      sprintf(dirname, "%s", prefix.c_str());
+      DBMkDir (file, dirname);
+      DBSetDir(file, dirname);
+      char meshname[1000];
       sprintf(meshname, "%s", prefix.c_str());
       DBPutPointmesh(file, meshname, 3, coords, NDUST, DB_DOUBLE, NULL);
 
@@ -103,17 +107,18 @@ class Dust {
       Kokkos::deep_copy(   ssnHost,   ssn);
       Kokkos::deep_copy( stateHost, state);
 
-      DBPutPointvar1 (file,   "age", "Points",   age.data(), NDUST, DB_DOUBLE, NULL);
-      DBPutPointvar1 (file,   "dob", "Points",   dob.data(), NDUST, DB_DOUBLE, NULL);
-      DBPutPointvar1 (file,   "ssn", "Points",   ssn.data(), NDUST, DB_LONG_LONG, NULL);
-      DBPutPointvar1 (file, "state", "Points", state.data(), NDUST, DB_INT   , NULL);
+      DBPutPointvar1 (file,   "age", meshname,   age.data(), NDUST, DB_DOUBLE, NULL);
+      DBPutPointvar1 (file,   "dob", meshname,   dob.data(), NDUST, DB_DOUBLE, NULL);
+      DBPutPointvar1 (file,   "ssn", meshname,   ssn.data(), NDUST, DB_LONG_LONG, NULL);
+      DBPutPointvar1 (file, "state", meshname, state.data(), NDUST, DB_INT   , NULL);
 
       for(auto it : ScalarPointVariables) {
         ScalarPointType v=it.second;
         ScalarPointType::HostMirror vHost = Kokkos::create_mirror_view(v);
         Kokkos::deep_copy(vHost, v);
-        DBPutPointvar1 (file, it.first.c_str(), "Points", vHost.data(), NDUST, DB_DOUBLE, NULL);
+        DBPutPointvar1 (file, it.first.c_str(), meshname, vHost.data(), NDUST, DB_DOUBLE, NULL);
       }
+      DBSetDir(file, "/");
       return;
     }
     /* ---------------------------------------------------------------------- */
