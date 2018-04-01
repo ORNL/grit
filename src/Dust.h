@@ -138,7 +138,6 @@ class Dust {
         yvVec[n]=grid.y(loc(n,1));
         zvVec[n]=grid.z(loc(n,2));
       }
-      //RSA need to convert indices to coordinates
       return;
     }
     /* ---------------------------------------------------------------------- */

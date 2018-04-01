@@ -1,3 +1,4 @@
+#include <random>
 #include <Kokkos_Random.hpp>
 #include "Yarn.h"
 #include "Dust.h"
@@ -43,6 +44,7 @@ class DustTest : public Dust {
 };
 
 int main(int argc, char *argv[]){
+  boost::mpi::environment env(argc, argv);
   Kokkos::initialize();
   printf ("%s on Kokkos execution space %s\n", argv[0], typeid (Kokkos::DefaultExecutionSpace).name());
   Kokkos::DefaultExecutionSpace::print_configuration(std::cout);
@@ -53,10 +55,13 @@ int main(int argc, char *argv[]){
   const size_t NG=(NX+1+2*NH)*(NY+1+2*NH)*(NZ+1+2*NH);
 
   Lint<DustTest> Parcels;
-  int numparcels=11;
+  std::random_device rd;
+  std::mt19937 mt(rd());
+  std::uniform_int_distribution<int> dist(3, 9);
+  int numparcels=dist(mt);
 
   for(int n=0; n<numparcels; n++) {
-    DustTest tracers(345+n);
+    DustTest tracers(345+100*globalcomm.rank()+n);
     Kokkos::parallel_for(DustTest::NDUST, KOKKOS_LAMBDA(const size_t& n) {
         double kx=2.0*pi*mx/NX;
         double ky=2.0*pi*my/NY;
@@ -75,5 +80,5 @@ int main(int argc, char *argv[]){
   Parcels.write_silo();
 
   Kokkos::finalize();
-  return(0);
+return(0);
 }
