@@ -1,12 +1,15 @@
+#include <Kokkos_Random.hpp>
 #include "Yarn.h"
 #include "Dust.h"
 #include "Lint.h"
-
-#include <Kokkos_Random.hpp>
+#include "GlobalVariables.h"
 
 const int NX=115, NY= 84, NZ= 93; // Per MPI rank problem size
 const int NH=1;
 const float mx=1.4, my=0.8, mz=1.1; //No. of full waves across NX, NY, NZ
+
+boost::mpi::communicator globalcomm;
+Greige grid;
 
 class DustTest : public Dust {
   private:
@@ -44,9 +47,10 @@ int main(int argc, char *argv[]){
   printf ("%s on Kokkos execution space %s\n", argv[0], typeid (Kokkos::DefaultExecutionSpace).name());
   Kokkos::DefaultExecutionSpace::print_configuration(std::cout);
 
+  grid=Greige(-3.0,-4.5,-2.8, 0.1, 0.15, 0.12);
+
   double pi=4.0*atan(1.0);
   const size_t NG=(NX+1+2*NH)*(NY+1+2*NH)*(NZ+1+2*NH);
-
 
   Lint<DustTest> Parcels;
   int numparcels=11;

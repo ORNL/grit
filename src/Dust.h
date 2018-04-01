@@ -5,6 +5,7 @@
 #include <map>
 #include <silo.h>
 #include <Kokkos_Core.hpp>
+#include "GlobalVariables.h"
 
 class Dust {
   public:
@@ -133,9 +134,9 @@ class Dust {
       Kokkos::deep_copy(locHost, loc);
 
       for(int n=0; n<NDUST; n++) {
-        xvVec[n]=loc(n,0);
-        yvVec[n]=loc(n,1);
-        zvVec[n]=loc(n,2);
+        xvVec[n]=grid.x(loc(n,0));
+        yvVec[n]=grid.y(loc(n,1));
+        zvVec[n]=grid.z(loc(n,2));
       }
       //RSA need to convert indices to coordinates
       return;
