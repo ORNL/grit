@@ -79,3 +79,7 @@ add_test(ConstantVelAdvectTest ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 8 ${MPIEXEC_PR
 add_executable(SiloWriterTest SiloWriterTest.C)
 target_link_libraries(SiloWriterTest ${DNSLIBS} ${LIBRARIESLIST})
 add_test(SiloWriterTest ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 8 ${MPIEXEC_PREFLAGS} SiloWriterTest)
+
+add_executable(LintPackTest LintPackTest.C)
+target_link_libraries(LintPackTest ${DNSLIBS} ${LIBRARIESLIST})
+add_test(LintPackTest ${SERIALEXEC} ${SERIALEXEC_PREFLAGS} LintPackTest)

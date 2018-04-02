@@ -77,6 +77,15 @@ class Dust {
       }
     };
     /* ---------------------------------------------------------------------- */
+    int getcount (STATE s=HEALTHY) {
+      int nfilled;
+      size_t ND=NDUST;
+      Kokkos::parallel_reduce(ND, KOKKOS_LAMBDA (const size_t& n, int& count) {
+          if(state(n)==s) count++;
+      }, nfilled);
+      return(nfilled);
+    }
+    /* ---------------------------------------------------------------------- */
     void write_silo(std::string prefix="Dust") const {
       char filename[1000];
       sprintf(filename, "%s.silo", prefix.c_str());

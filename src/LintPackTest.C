@@ -57,8 +57,8 @@ int main(int argc, char *argv[]){
   Lint<DustTest> Parcels;
   std::random_device rd;
   std::mt19937 mt(rd());
-  std::uniform_int_distribution<int> dist(3, 9);
-  int numparcels=dist(mt);
+  int numparcels=7;
+  std::uniform_real_distribution<float> dist(0.2, 0.8);
 
   for(int n=0; n<numparcels; n++) {
     DustTest tracers(345+100*globalcomm.rank()+n);
@@ -77,7 +77,21 @@ int main(int argc, char *argv[]){
     Parcels.push_back(tracers);
   }
 
-  Parcels.write_silo("SiloWriterTest");
+  //Parcels.write_silo("BeforePack");
+
+  for(DustTest P : Parcels) {
+    float killfraction=dist(mt);
+    typedef Kokkos::Random_XorShift64_Pool<> GeneratorPool;
+    GeneratorPool pool(345);
+    Kokkos::parallel_for(DustTest::NDUST, KOKKOS_LAMBDA(const size_t& n) {
+        GeneratorPool::generator_type gen = pool.get_state();
+        float p=gen.frand(1.0);
+        if(p<killfraction) P.state(n)=DustTest::UNOCCUPIED;
+        pool.free_state(gen);
+    } );
+
+    printf("rsa dbdd 892d %f %f\n", float(P.getcount(DustTest::UNOCCUPIED))/DustTest::NDUST, killfraction);
+  }
 
   Kokkos::finalize();
 return(0);
