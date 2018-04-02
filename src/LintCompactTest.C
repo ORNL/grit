@@ -57,7 +57,7 @@ int main(int argc, char *argv[]){
   Lint<DustTest> Parcels;
   std::random_device rd;
   std::mt19937 mt(rd());
-  int numparcels=7;
+  int numparcels=42;
   std::uniform_real_distribution<float> dist(0.2, 0.8);
 
   for(int n=0; n<numparcels; n++) {
@@ -77,8 +77,6 @@ int main(int argc, char *argv[]){
     Parcels.push_back(tracers);
   }
 
-  //Parcels.write_silo("BeforePack");
-
   for(DustTest P : Parcels) {
     float killfraction=dist(mt);
     typedef Kokkos::Random_XorShift64_Pool<> GeneratorPool;
@@ -89,9 +87,20 @@ int main(int argc, char *argv[]){
         if(p<killfraction) P.state(n)=DustTest::UNOCCUPIED;
         pool.free_state(gen);
     } );
-
-    printf("rsa dbdd 892d %f %f\n", float(P.getcount(DustTest::UNOCCUPIED))/DustTest::NDUST, killfraction);
   }
+  printf("Lint Compact Test before merging %4zu parcels with fill percentages = ", Parcels.size());
+  for(DustTest P: Parcels) printf("%9.6f ", 1.0-float(P.getcount(DustTest::UNOCCUPIED))/DustTest::NDUST);
+  printf("\n");
+
+  Parcels.write_silo("BeforeCompact");
+
+  Parcels.compact();
+
+  Parcels.write_silo("AfterCompact");
+
+  printf("Lint Compact Test after  merging %4zu parcels with fill percentages = ", Parcels.size());
+  for(DustTest P: Parcels) printf("%9.6f ", 1.0-float(P.getcount(DustTest::UNOCCUPIED))/DustTest::NDUST);
+  printf("\n");
 
   Kokkos::finalize();
 return(0);
