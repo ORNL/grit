@@ -140,8 +140,10 @@ class Lint : public std::list<T> {
 
       writemultivar(  "ssn");
       writemultivar("state");
-      for(auto it : this->front().ScalarPointVariables) //RSA problem if this was empty
+      for(auto it : this->front().ScalarPointVariables) //RSA problem if "this" was empty
         writemultivar(it.first);
+      for(auto it : this->front().Vectr3PointVariables) for(int m=0; m<3; m++)
+        writemultivar(it.first+"vec"+char('0'+m));
       DBClose(file);
     }
     /* ---------------------------------------------------------------------- */

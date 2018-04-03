@@ -118,6 +118,18 @@ class Dust {
         Kokkos::deep_copy(vHost, v);
         DBPutPointvar1 (file, it.first.c_str(), meshname, vHost.data(), NDUST, DB_DOUBLE, NULL);
       }
+
+      for(auto it : Vectr3PointVariables) {
+        Vectr3PointType w=it.second;
+        ScalarPointType v("v");
+        for(int m=0; m<3; m++) {
+        Kokkos::parallel_for(NDUST, KOKKOS_LAMBDA(const size_t &n) { v(n)=w(n,m); } );
+        ScalarPointType::HostMirror vHost = Kokkos::create_mirror_view(v);
+        Kokkos::deep_copy(vHost, v);
+        DBPutPointvar1 (file, (it.first+"vec"+char('0'+m)).c_str(), meshname, vHost.data(), NDUST, DB_DOUBLE, NULL);
+        }
+      }
+
       DBSetDir(file, "/");
       return;
     }
