@@ -16,13 +16,11 @@ class Dust {
     typedef Kokkos::View<double   [NDUST]    > ScalarPointType;
     typedef Kokkos::View<double   [NDUST][3] > Vectr3PointType;
     typedef Kokkos::View<st_type  [NDUST]    > HealthPointType;
-    typedef Kokkos::View<double   [NDUST][3] > LocatnPointType;
     typedef Kokkos::View<uint64_t [NDUST]    > SSNumbPointType;
-    typedef LocatnPointType LocationVecType;
+    typedef Vectr3PointType LocatnPointType;
+    typedef Vectr3PointType LocationVecType;
     typedef HealthPointType PointHealthType;
 
-    ScalarPointType age  ;
-    ScalarPointType dob  ;
     SSNumbPointType ssn  ;
     HealthPointType state;
     LocatnPointType loc  ;
@@ -31,8 +29,8 @@ class Dust {
     std::map<std::string, Vectr3PointType> Vectr3PointVariables;
 
     enum STATE : uint32_t {
-       HEALTHY          =  0, //
-       UNOCCUPIED           , //
+       UNOCCUPIED       =  0, //
+       HEALTHY          =  1, //
        EXIT_LEFT_X_BDRY     , //
        EXIT_RGHT_X_BDRY     , //
        EXIT_LEFT_Y_BDRY     , //
@@ -56,8 +54,6 @@ class Dust {
   public:
     // constructor
     Dust(uint64_t ssn_start=0) {
-      age   = ScalarPointType ("age"  );
-      dob   = ScalarPointType ("dob"  );
       ssn   = SSNumbPointType ("ssn"  );
       state = HealthPointType ("state");
       loc   = LocatnPointType ("loc"  );
@@ -108,17 +104,11 @@ class Dust {
       sprintf(meshname, "%s", prefix.c_str());
       DBPutPointmesh(file, meshname, 3, coords, NDUST, DB_DOUBLE, NULL);
 
-      ScalarPointType::HostMirror   ageHost = Kokkos::create_mirror_view(  age);
-      ScalarPointType::HostMirror   dobHost = Kokkos::create_mirror_view(  dob);
       SSNumbPointType::HostMirror   ssnHost = Kokkos::create_mirror_view(  ssn);
       HealthPointType::HostMirror stateHost = Kokkos::create_mirror_view(state);
-      Kokkos::deep_copy(   ageHost,   age);
-      Kokkos::deep_copy(   dobHost,   dob);
       Kokkos::deep_copy(   ssnHost,   ssn);
       Kokkos::deep_copy( stateHost, state);
 
-      DBPutPointvar1 (file,   "age", meshname,   age.data(), NDUST, DB_DOUBLE, NULL);
-      DBPutPointvar1 (file,   "dob", meshname,   dob.data(), NDUST, DB_DOUBLE, NULL);
       DBPutPointvar1 (file,   "ssn", meshname,   ssn.data(), NDUST, DB_LONG_LONG, NULL);
       DBPutPointvar1 (file, "state", meshname, state.data(), NDUST, DB_INT   , NULL);
 

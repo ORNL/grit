@@ -56,8 +56,6 @@ class Lint : public std::list<T> {
       } );
       Kokkos::parallel_for(T::NDUST, KOKKOS_LAMBDA(const size_t& n) {
           if(p2.state(n)!=T::UNOCCUPIED) {
-            p1.age  (ix3(ix2(n)))=p2.age  (n);
-            p1.dob  (ix3(ix2(n)))=p2.dob  (n);
             p1.ssn  (ix3(ix2(n)))=p2.ssn  (n);
             p1.state(ix3(ix2(n)))=p2.state(n);
             for(int m=0; m<3; m++) p1.loc(ix3(ix2(n)),m)=p2.loc(n, m);
@@ -140,8 +138,6 @@ class Lint : public std::list<T> {
         DBPutMultivar (file, varname.c_str(), varnamesptr.size(), varnamesptr.data(), vartypes.data(), NULL);
       };
 
-      writemultivar(  "age");
-      writemultivar(  "dob");
       writemultivar(  "ssn");
       writemultivar("state");
       for(auto it : this->front().ScalarPointVariables) //RSA problem if this was empty
