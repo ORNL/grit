@@ -6,7 +6,6 @@
 #include "GlobalVariables.h"
 
 const int NX=115, NY= 84, NZ= 93; // Per MPI rank problem size
-const int NH=1;
 const float mx=1.4, my=0.8, mz=1.1; //No. of full waves across NX, NY, NZ
 
 boost::mpi::communicator globalcomm;
@@ -18,7 +17,7 @@ class DustTest : public Dust {
   public:
     DustTest(uint32_t seed=4911) {
       GeneratorPool pool(seed);
-      Kokkos::parallel_for(NDUST, init_position(pool, loc));
+      Kokkos::parallel_for(NDUST, init_position(pool, state, loc));
       Dust::ScalarPointType P("P");
       Dust::ScalarPointType Q("Q");
       ScalarPointVariables.insert(std::make_pair("P", P));
@@ -27,13 +26,15 @@ class DustTest : public Dust {
     /* ---------------------------------------------------------------------- */
     struct init_position {
       GeneratorPool pool;
+      HealthPointType state;
       LocationVecType loc;
       //constructor
-      init_position(GeneratorPool pool_, LocationVecType loc_)
-        : pool(pool_), loc(loc_) { } ;
+      init_position(GeneratorPool pool_, HealthPointType state_, LocationVecType loc_)
+        : pool(pool_), state(state_), loc(loc_) { } ;
       KOKKOS_INLINE_FUNCTION
       void operator()(const size_t n) const {
         GeneratorPool::generator_type gen = pool.get_state();
+        state(n) = HEALTHY;
         loc(n,0)=gen.drand(NX);
         loc(n,1)=gen.drand(NY);
         loc(n,2)=gen.drand(NZ);
@@ -52,7 +53,6 @@ int main(int argc, char *argv[]){
   grid=Greige(-3.0,-4.5,-2.8, 0.1, 0.15, 0.12);
 
   double pi=4.0*atan(1.0);
-  const size_t NG=(NX+1+2*NH)*(NY+1+2*NH)*(NZ+1+2*NH);
 
   Lint<DustTest> Parcels;
   std::random_device rd;
@@ -62,13 +62,13 @@ int main(int argc, char *argv[]){
 
   for(int n=0; n<numparcels; n++) {
     DustTest tracers(345+100*globalcomm.rank()+n);
+    DustTest::ScalarPointType P, Q;
+    P=tracers.ScalarPointVariables.find("P")->second;
+    Q=tracers.ScalarPointVariables.find("Q")->second;
     Kokkos::parallel_for(DustTest::NDUST, KOKKOS_LAMBDA(const size_t& n) {
         double kx=2.0*pi*mx/NX;
         double ky=2.0*pi*my/NY;
         double kz=2.0*pi*mz/NZ;
-        DustTest::ScalarPointType P, Q;
-        P=tracers.ScalarPointVariables.find("P")->second;
-        Q=tracers.ScalarPointVariables.find("Q")->second;
         P (n)= cos(tracers.loc(n,0)*kx)
              * cos(tracers.loc(n,1)*ky)
              * cos(tracers.loc(n,2)*kz);

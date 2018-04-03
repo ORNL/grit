@@ -15,18 +15,20 @@ class DustTest : public Dust {
   public:
     DustTest() {
       GeneratorPool pool(23791);
-      Kokkos::parallel_for(NDUST, init_position(pool, loc));
+      Kokkos::parallel_for(NDUST, init_position(pool, state, loc));
     };
     /* ---------------------------------------------------------------------- */
     struct init_position {
       GeneratorPool pool;
+      HealthPointType state;
       LocationVecType loc;
       //constructor
-      init_position(GeneratorPool pool_, LocationVecType loc_)
-        : pool(pool_), loc(loc_) { } ;
+      init_position(GeneratorPool pool_, HealthPointType state_, LocationVecType loc_)
+        : pool(pool_), state(state_), loc(loc_) { } ;
       KOKKOS_INLINE_FUNCTION
       void operator()(const size_t n) const {
         GeneratorPool::generator_type gen = pool.get_state();
+        state(n) = HEALTHY;
         loc(n,0)=gen.drand(NX);
         loc(n,1)=gen.drand(NY);
         loc(n,2)=gen.drand(NZ);
