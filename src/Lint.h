@@ -78,6 +78,44 @@ class Lint : public std::list<T> {
     }
 
     /* ---------------------------------------------------------------------- */
+    Lint<T> extract(Dust::STATE s=Dust::HEALTHY) {
+      Lint <T> newlist;
+      for(T p2: *this) {
+        if(p2.getcount(s)==0) continue;
+        Kokkos::View<uint32_t [T::NDUST]> ix1("ix1");
+        Kokkos::parallel_scan(T::NDUST, KOKKOS_LAMBDA(const size_t& n, uint32_t& upd, const bool& final) {
+          if(final) ix1(n)=upd;
+          if(p2.state(n)==s) upd+=1;
+        } );
+        T p1;
+        Kokkos::parallel_for(T::NDUST, KOKKOS_LAMBDA(const size_t& n) {
+            if(p2.state(n)==s) {
+              p1.ssn  (ix1(n))=p2.ssn  (n);
+              p1.state(ix1(n))=p2.state(n);
+              for(int m=0; m<3; m++) p1.loc(ix1(n),m)=p2.loc(n, m);
+            }
+        } );
+        for(auto var2 : p2.ScalarPointVariables) {
+          auto s1=p1.ScalarPointVariables.find(var2.first)->second;
+          auto s2=var2.second;
+          Kokkos::parallel_for(T::NDUST, KOKKOS_LAMBDA(const size_t& n) {
+              if(p2.state(n)==s) s1(ix1(n))=s2(n);
+          } );
+        }
+        for(auto var2 : p2.Vectr3PointVariables) {
+          auto s1=p1.Vectr3PointVariables.find(var2.first)->second;
+          auto s2=var2.second;
+          Kokkos::parallel_for(T::NDUST, KOKKOS_LAMBDA(const size_t& n) {
+              if(p2.state(n)==s) for(int m=0; m<3; m++) s1(ix1(n),m)=s2(n,m);
+          } );
+        }
+        newlist.push_back(p1);
+      }
+      newlist.compact();
+      return(newlist);
+    }
+
+    /* ---------------------------------------------------------------------- */
     void write_silo(std::string prefix="Lint") const {
       char filename[1000];
       sprintf(filename, "%s%06d.silo", prefix.c_str(), globalcomm.rank());
@@ -140,9 +178,10 @@ class Lint : public std::list<T> {
 
       writemultivar(  "ssn");
       writemultivar("state");
-      for(auto it : this->front().ScalarPointVariables) //RSA problem if "this" was empty
+      T dummy; //Use a dummy to find what variables exist
+      for(auto it : dummy.ScalarPointVariables)
         writemultivar(it.first);
-      for(auto it : this->front().Vectr3PointVariables) for(int m=0; m<3; m++)
+      for(auto it : dummy.Vectr3PointVariables) for(int m=0; m<3; m++)
         writemultivar(it.first+"vec"+char('0'+m));
       DBClose(file);
     }
