@@ -76,8 +76,9 @@ class Dust {
     int getcount (STATE s=HEALTHY) {
       int nfilled;
       size_t ND=NDUST;
+      HealthPointType state_=state;
       Kokkos::parallel_reduce(ND, KOKKOS_LAMBDA (const size_t& n, int& count) {
-          if(state(n)==s) count++;
+          if(state_(n)==s) count++;
       }, nfilled);
       return(nfilled);
     }
@@ -109,8 +110,8 @@ class Dust {
       Kokkos::deep_copy(   ssnHost,   ssn);
       Kokkos::deep_copy( stateHost, state);
 
-      DBPutPointvar1 (file,   "ssn", meshname,   ssn.data(), NDUST, DB_LONG_LONG, NULL);
-      DBPutPointvar1 (file, "state", meshname, state.data(), NDUST, DB_INT   , NULL);
+      DBPutPointvar1 (file,   "ssn", meshname,   ssnHost.data(), NDUST, DB_LONG_LONG, NULL);
+      DBPutPointvar1 (file, "state", meshname, stateHost.data(), NDUST, DB_INT   , NULL);
 
       for(auto it : ScalarPointVariables) {
         ScalarPointType v=it.second;
@@ -145,9 +146,9 @@ class Dust {
       Kokkos::deep_copy(locHost, loc);
 
       for(int n=0; n<NDUST; n++) {
-        xvVec[n]=grid.x(loc(n,0));
-        yvVec[n]=grid.y(loc(n,1));
-        zvVec[n]=grid.z(loc(n,2));
+        xvVec[n]=grid.x(locHost(n,0));
+        yvVec[n]=grid.y(locHost(n,1));
+        zvVec[n]=grid.z(locHost(n,2));
       }
       return;
     }
