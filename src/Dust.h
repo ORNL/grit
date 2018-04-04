@@ -146,9 +146,9 @@ class Dust {
       Kokkos::deep_copy(locHost, loc);
 
       for(int n=0; n<NDUST; n++) {
-        xvVec[n]=grid.x(locHost(n,0));
-        yvVec[n]=grid.y(locHost(n,1));
-        zvVec[n]=grid.z(locHost(n,2));
+        xvVec[n]=localgrid.x(locHost(n,0));
+        yvVec[n]=localgrid.y(locHost(n,1));
+        zvVec[n]=localgrid.z(locHost(n,2));
       }
       return;
     }

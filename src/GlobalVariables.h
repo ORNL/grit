@@ -10,6 +10,6 @@ extern double timestepsize;
 extern double last_checkpoint_simtime;
 extern boost::mpi::communicator globalcomm;
 extern Corduroy cartcomm;
-extern Greige grid;
+extern Greige globalgrid, localgrid;
 
 #endif

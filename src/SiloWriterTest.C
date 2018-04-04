@@ -9,7 +9,8 @@ const int NX=115, NY= 84, NZ= 93; // Per MPI rank problem size
 const float mx=1.4, my=0.8, mz=1.1; //No. of full waves across NX, NY, NZ
 
 boost::mpi::communicator globalcomm;
-Greige grid;
+Greige globalgrid, localgrid;
+Corduroy cartcomm;
 
 class DustTest : public Dust {
   private:
@@ -49,8 +50,12 @@ int main(int argc, char *argv[]){
   Kokkos::initialize();
   printf ("%s on Kokkos execution space %s\n", argv[0], typeid (Kokkos::DefaultExecutionSpace).name());
   Kokkos::DefaultExecutionSpace::print_configuration(std::cout);
+  cartcomm=Corduroy(globalcomm, 2, 2, 2);
 
-  grid=Greige(-3.0,-4.5,-2.8, 0.1, 0.15, 0.12);
+  globalgrid=Greige(-3.0,-4.5,-2.8, 0.1, 0.15, 0.12);
+   localgrid=Greige(globalgrid.x(cartcomm.x.rank()*NX),
+                    globalgrid.y(cartcomm.y.rank()*NY),
+                    globalgrid.z(cartcomm.z.rank()*NZ), 0.1, 0.15, 0.12);
 
   double pi=4.0*atan(1.0);
 
