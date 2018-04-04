@@ -3,6 +3,7 @@
 
 #include <list>
 #include <map>
+#include <boost/filesystem.hpp>
 #include "GlobalVariables.h"
 
 template <typename T>
@@ -117,8 +118,16 @@ class Lint : public std::list<T> {
 
     /* ---------------------------------------------------------------------- */
     void write_silo(std::string prefix="Lint") const {
+      if(globalcomm.rank()==0) {
+        std::string dirname=prefix+"_silodir";
+        if(!boost::filesystem::exists(dirname)) {
+          boost::filesystem::path dir(dirname);
+          boost::filesystem::create_directory(dir);
+        }
+      }
+      globalcomm.barrier();
       char filename[1000];
-      sprintf(filename, "%s%06d.silo", prefix.c_str(), globalcomm.rank());
+      sprintf(filename, "%s_silodir/%s%06d.silo", prefix.c_str(), prefix.c_str(), globalcomm.rank());
       DBfile *file=nullptr;
       file=DBCreate(filename, DB_CLOBBER, DB_LOCAL, NULL, DB_HDF5);
 
@@ -144,7 +153,7 @@ class Lint : public std::list<T> {
       std::vector<int> vartypes;
 
       for(int n=0; n<globalcomm.size(); n++) {
-        sprintf(filename, "%s%06d.silo", prefix.c_str(), n);
+        sprintf(filename, "%s_silodir/%s%06d.silo", prefix.c_str(), prefix.c_str(), n);
         for(int m=0; m<numparcels_g[n]; m++) {
           count++;
           char meshname[1000];
