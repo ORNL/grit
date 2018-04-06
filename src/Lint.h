@@ -173,7 +173,7 @@ class Lint : public std::list<T> {
 
       sprintf(filename, "%s.silo", prefix.c_str());
       file=DBCreate(filename, DB_CLOBBER, DB_LOCAL, NULL, DB_HDF5);
-      DBPutMultimesh(file, prefix.c_str(), meshnamesptr.size(), meshnamesptr.data(), meshtypes.data(), NULL);
+      DBPutMultimesh(file, "Points", meshnamesptr.size(), meshnamesptr.data(), meshtypes.data(), NULL);
 
       auto writemultivar = [=](std::string varname) {
         std::vector<std::string> varnames;

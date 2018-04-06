@@ -82,7 +82,35 @@ int main(int argc, char *argv[]){
     Parcels.push_back(tracers);
   }
 
-  Parcels.write_silo("SiloWriterTest");
+  Parcels.write_silo("SiloWriterTest0");
+
+  for(auto tracers : Parcels) {
+    Kokkos::parallel_for(DustTest::NDUST, KOKKOS_LAMBDA(const size_t& n) {
+        tracers.loc(n,0)+=1.0;
+        tracers.loc(n,1)+=1.20;
+        tracers.loc(n,2)+=1.40;
+    } );
+  }
+
+  Parcels.write_silo("SiloWriterTest1");
+  for(auto tracers : Parcels) {
+    Kokkos::parallel_for(DustTest::NDUST, KOKKOS_LAMBDA(const size_t& n) {
+        tracers.loc(n,0)+=1.0;
+        tracers.loc(n,1)+=1.20;
+        tracers.loc(n,2)+=1.40;
+    } );
+  }
+
+  Parcels.write_silo("SiloWriterTest2");
+  for(auto tracers : Parcels) {
+    Kokkos::parallel_for(DustTest::NDUST, KOKKOS_LAMBDA(const size_t& n) {
+        tracers.loc(n,0)+=1.0;
+        tracers.loc(n,1)+=1.20;
+        tracers.loc(n,2)+=1.40;
+    } );
+  }
+
+  Parcels.write_silo("SiloWriterTest3");
 
   Kokkos::finalize();
 return(0);
