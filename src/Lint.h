@@ -11,12 +11,18 @@ class Lint : public std::list<T> {
   public:
     /* ---------------------------------------------------------------------- */
     void compact() {
-      if(this->size()<2) return;
+      if(this->empty()) return;
       typedef std::pair<T, int>  CountedT;
       auto comp = [] (const CountedT &p1, const CountedT &p2)->bool { return p1.second>p2.second; };
       std::list<CountedT> CountedList;
       for(T parcel: *this) {
         CountedList.push_back(std::make_pair(parcel, T::NDUST-parcel.getcount(T::UNOCCUPIED)));
+      }
+      CountedList.remove_if( [] (const CountedT p1) { return p1.second==0; } );
+      if(CountedList.size()<2) {
+        this->clear();
+        for(auto parcel: CountedList) this->push_back(parcel.first);
+        return;
       }
       CountedList.sort(comp);
 
@@ -79,38 +85,36 @@ class Lint : public std::list<T> {
     }
 
     /* ---------------------------------------------------------------------- */
-    Lint<T> extract(Dust::STATE s=Dust::HEALTHY) {
+    Lint<T> extract(Dust::STATE s=Dust::HEALTHY, bool kill=false) {
       Lint <T> newlist;
       for(T p2: *this) {
         if(p2.getcount(s)==0) continue;
-        Kokkos::View<uint32_t [T::NDUST]> ix1("ix1");
-        Kokkos::parallel_scan(T::NDUST, KOKKOS_LAMBDA(const size_t& n, uint32_t& upd, const bool& final) {
-          if(final) ix1(n)=upd;
-          if(p2.state(n)==s) upd+=1;
-        } );
         T p1;
         Kokkos::parallel_for(T::NDUST, KOKKOS_LAMBDA(const size_t& n) {
             if(p2.state(n)==s) {
-              p1.ssn  (ix1(n))=p2.ssn  (n);
-              p1.state(ix1(n))=p2.state(n);
-              for(int m=0; m<3; m++) p1.loc(ix1(n),m)=p2.loc(n, m);
+              p1.ssn  (n)=p2.ssn  (n);
+              p1.state(n)=p2.state(n);
+              for(int m=0; m<3; m++) p1.loc(n,m)=p2.loc(n, m);
             }
         } );
         for(auto var2 : p2.ScalarPointVariables) {
           auto s1=p1.ScalarPointVariables.find(var2.first)->second;
           auto s2=var2.second;
           Kokkos::parallel_for(T::NDUST, KOKKOS_LAMBDA(const size_t& n) {
-              if(p2.state(n)==s) s1(ix1(n))=s2(n);
+              if(p2.state(n)==s) s1(n)=s2(n);
           } );
         }
         for(auto var2 : p2.Vectr3PointVariables) {
           auto s1=p1.Vectr3PointVariables.find(var2.first)->second;
           auto s2=var2.second;
           Kokkos::parallel_for(T::NDUST, KOKKOS_LAMBDA(const size_t& n) {
-              if(p2.state(n)==s) for(int m=0; m<3; m++) s1(ix1(n),m)=s2(n,m);
+              if(p2.state(n)==s) for(int m=0; m<3; m++) s1(n,m)=s2(n,m);
           } );
         }
         newlist.push_back(p1);
+        if (kill) Kokkos::parallel_for(T::NDUST, KOKKOS_LAMBDA(const size_t& n) {
+            if(p2.state(n)==s) p2.state(n)=Dust::UNOCCUPIED;
+        } );
       }
       newlist.compact();
       return(newlist);
