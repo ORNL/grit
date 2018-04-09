@@ -12,8 +12,6 @@ boost::mpi::communicator globalcomm;
 Greige globalgrid, localgrid;
 
 class DustTest : public Dust {
-  private:
-    typedef Kokkos::Random_XorShift64_Pool<> GeneratorPool;
   public:
     DustTest(uint64_t ssn_start=0) : Dust (ssn_start) {
       Dust::ScalarPointType P("P");

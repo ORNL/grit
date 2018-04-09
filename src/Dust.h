@@ -55,7 +55,7 @@ class Dust {
     // constructor
     Dust(uint64_t ssn_start=0) {
       ssn   = SSNumbPointType ("ssn"  );
-      state = HealthPointType ("state");
+      state = HealthPointType ("state"); //Kokkos initializes to 0 Unoccupied
       loc   = LocatnPointType ("loc"  );
       Kokkos::parallel_for(NDUST, init_ssn(ssn, ssn_start));
       Kokkos::fence();
@@ -81,6 +81,14 @@ class Dust {
           if(state_(n)==s) count++;
       }, nfilled);
       return(nfilled);
+    }
+    /* ---------------------------------------------------------------------- */
+    void kill_unhealthy() {
+      size_t ND=NDUST;
+      HealthPointType state_=state;
+      Kokkos::parallel_for(ND, KOKKOS_LAMBDA (const size_t& n) {
+          if(state_(n)!=HEALTHY) state_(n)=UNOCCUPIED;
+      } );
     }
     /* ---------------------------------------------------------------------- */
     void write_silo(std::string prefix="Dust") const {

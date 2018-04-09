@@ -5,6 +5,7 @@
 #include <map>
 #include <boost/filesystem.hpp>
 #include "GlobalVariables.h"
+#include "Dust.h"
 
 template <typename T>
 class Lint : public std::list<T> {
