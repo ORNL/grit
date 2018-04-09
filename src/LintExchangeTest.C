@@ -40,8 +40,8 @@ int main(int argc, char *argv[]){
   typedef Kokkos::Random_XorShift64_Pool<> GeneratorPool;
   GeneratorPool pool(345);
 
-  for(int n=0; n<numparcels; n++) {
-    DustTest tracers(0+DustTest::NDUST*n);
+  for(int m=0; m<numparcels; m++) {
+    DustTest tracers(0+DustTest::NDUST*m);
     DustTest::ScalarPointType P, Q;
     P=tracers.ScalarPointVariables.find("P")->second;
     Q=tracers.ScalarPointVariables.find("Q")->second;

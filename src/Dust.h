@@ -171,8 +171,8 @@ class Dust {
       ar & ssn;
       ar & state;
       ar & loc;
-      //ar & ScalarPointVariables;
-      //ar & Vectr3PointVariables;
+      ar & ScalarPointVariables;
+      ar & Vectr3PointVariables;
     }
 };
 
@@ -206,27 +206,35 @@ namespace boost { namespace serialization {
     /* ---------------------------------------------------------------------- */
     template<class Archive>
     void save(Archive &ar, Dust::ScalarPointType v, const unsigned int version) {
+      std::string vLabel=v.label();
+      ar & vLabel;
       Dust::ScalarPointType::HostMirror vHost = Kokkos::create_mirror_view(v);
       Kokkos::deep_copy(vHost, v);
-      printf("rsa reached a782 %zu %p\n", v.dimension_0(), v.ptr_on_device());
       ar & boost::serialization::make_array(vHost.ptr_on_device(), Dust::NDUST);
     }
     template<class Archive>
     void load(Archive &ar, Dust::ScalarPointType v, const unsigned int version) {
+      std::string vLabel;
+      ar & vLabel;
+      if(v.ptr_on_device()==nullptr) v=Dust::ScalarPointType(vLabel);
       Dust::ScalarPointType::HostMirror vHost = Kokkos::create_mirror_view(v);
-      printf("rsa reached a247 %zu %p\n", v.dimension_0(), v.ptr_on_device());
       ar & boost::serialization::make_array(vHost.ptr_on_device(), Dust::NDUST);
       Kokkos::deep_copy(v, vHost);
     }
     /* ---------------------------------------------------------------------- */
     template<class Archive>
     void save(Archive &ar, Dust::Vectr3PointType v, const unsigned int version) {
+      std::string vLabel=v.label();
+      ar & vLabel;
       Dust::Vectr3PointType::HostMirror vHost = Kokkos::create_mirror_view(v);
       Kokkos::deep_copy(vHost, v);
       ar & boost::serialization::make_array(vHost.ptr_on_device(), Dust::NDUST*3);
     }
     template<class Archive>
     void load(Archive &ar, Dust::Vectr3PointType v, const unsigned int version) {
+      std::string vLabel;
+      ar & vLabel;
+      if(v.ptr_on_device()==nullptr) v=Dust::Vectr3PointType(vLabel);
       Dust::Vectr3PointType::HostMirror vHost = Kokkos::create_mirror_view(v);
       ar & boost::serialization::make_array(vHost.ptr_on_device(), Dust::NDUST*3);
       Kokkos::deep_copy(v, vHost);
