@@ -4,6 +4,7 @@
 #include <list>
 #include <map>
 #include <boost/filesystem.hpp>
+#include <boost/serialization/list.hpp>
 #include "GlobalVariables.h"
 #include "Dust.h"
 
@@ -200,6 +201,12 @@ class Lint : public std::list<T> {
       DBClose(file);
     }
     /* ---------------------------------------------------------------------- */
+  private:
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+      ar & boost::serialization::base_object<std::list<T>>(*this);
+    }
 };
 
 #endif

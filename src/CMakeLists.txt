@@ -83,3 +83,7 @@ add_test(SiloWriterTest ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 8 ${MPIEXEC_PREFLAGS}
 add_executable(LintCompactTest LintCompactTest.C)
 target_link_libraries(LintCompactTest ${DNSLIBS} ${LIBRARIESLIST})
 add_test(LintCompactTest ${SERIALEXEC} ${SERIALEXEC_PREFLAGS} LintCompactTest)
+
+add_executable(LintExchangeTest LintExchangeTest.C)
+target_link_libraries(LintExchangeTest ${DNSLIBS} ${LIBRARIESLIST})
+add_test(LintExchangeTest ${SERIALEXEC} ${SERIALEXEC_PREFLAGS} LintExchangeTest)

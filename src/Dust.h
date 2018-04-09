@@ -4,6 +4,9 @@
 #include <cstdint>
 #include <map>
 #include <silo.h>
+#include <boost/serialization/map.hpp>
+#include <boost/serialization/array.hpp>
+#include <boost/serialization/split_free.hpp>
 #include <Kokkos_Core.hpp>
 #include "GlobalVariables.h"
 
@@ -161,7 +164,79 @@ class Dust {
       return;
     }
     /* ---------------------------------------------------------------------- */
-
+  private:
+    friend class boost::serialization::access;
+    template<class Archive>
+    void serialize(Archive & ar, const unsigned int version) {
+      ar & ssn;
+      ar & state;
+      ar & loc;
+      //ar & ScalarPointVariables;
+      //ar & Vectr3PointVariables;
+    }
 };
+
+namespace boost { namespace serialization {
+    /* ---------------------------------------------------------------------- */
+    template<class Archive>
+    void save(Archive &ar, Dust::SSNumbPointType v, const unsigned int version) {
+      Dust::SSNumbPointType::HostMirror vHost = Kokkos::create_mirror_view(v);
+      Kokkos::deep_copy(vHost, v);
+      ar & boost::serialization::make_array(vHost.ptr_on_device(), Dust::NDUST);
+    }
+    template<class Archive>
+    void load(Archive &ar, Dust::SSNumbPointType v, const unsigned int version) {
+      Dust::SSNumbPointType::HostMirror vHost = Kokkos::create_mirror_view(v);
+      ar & boost::serialization::make_array(vHost.ptr_on_device(), Dust::NDUST);
+      Kokkos::deep_copy(v, vHost);
+    }
+    /* ---------------------------------------------------------------------- */
+    template<class Archive>
+    void save(Archive &ar, Dust::HealthPointType v, const unsigned int version) {
+      Dust::HealthPointType::HostMirror vHost = Kokkos::create_mirror_view(v);
+      Kokkos::deep_copy(vHost, v);
+      ar & boost::serialization::make_array(vHost.ptr_on_device(), Dust::NDUST);
+    }
+    template<class Archive>
+    void load(Archive &ar, Dust::HealthPointType v, const unsigned int version) {
+      Dust::HealthPointType::HostMirror vHost = Kokkos::create_mirror_view(v);
+      ar & boost::serialization::make_array(vHost.ptr_on_device(), Dust::NDUST);
+      Kokkos::deep_copy(v, vHost);
+    }
+    /* ---------------------------------------------------------------------- */
+    template<class Archive>
+    void save(Archive &ar, Dust::ScalarPointType v, const unsigned int version) {
+      Dust::ScalarPointType::HostMirror vHost = Kokkos::create_mirror_view(v);
+      Kokkos::deep_copy(vHost, v);
+      printf("rsa reached a782 %zu %p\n", v.dimension_0(), v.ptr_on_device());
+      ar & boost::serialization::make_array(vHost.ptr_on_device(), Dust::NDUST);
+    }
+    template<class Archive>
+    void load(Archive &ar, Dust::ScalarPointType v, const unsigned int version) {
+      Dust::ScalarPointType::HostMirror vHost = Kokkos::create_mirror_view(v);
+      printf("rsa reached a247 %zu %p\n", v.dimension_0(), v.ptr_on_device());
+      ar & boost::serialization::make_array(vHost.ptr_on_device(), Dust::NDUST);
+      Kokkos::deep_copy(v, vHost);
+    }
+    /* ---------------------------------------------------------------------- */
+    template<class Archive>
+    void save(Archive &ar, Dust::Vectr3PointType v, const unsigned int version) {
+      Dust::Vectr3PointType::HostMirror vHost = Kokkos::create_mirror_view(v);
+      Kokkos::deep_copy(vHost, v);
+      ar & boost::serialization::make_array(vHost.ptr_on_device(), Dust::NDUST*3);
+    }
+    template<class Archive>
+    void load(Archive &ar, Dust::Vectr3PointType v, const unsigned int version) {
+      Dust::Vectr3PointType::HostMirror vHost = Kokkos::create_mirror_view(v);
+      ar & boost::serialization::make_array(vHost.ptr_on_device(), Dust::NDUST*3);
+      Kokkos::deep_copy(v, vHost);
+    }
+    /* ---------------------------------------------------------------------- */
+} }
+
+BOOST_SERIALIZATION_SPLIT_FREE(Dust::SSNumbPointType)
+BOOST_SERIALIZATION_SPLIT_FREE(Dust::HealthPointType)
+BOOST_SERIALIZATION_SPLIT_FREE(Dust::ScalarPointType)
+BOOST_SERIALIZATION_SPLIT_FREE(Dust::Vectr3PointType)
 
 #endif
