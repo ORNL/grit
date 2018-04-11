@@ -72,10 +72,6 @@ add_executable(LegranditeTest LegranditeTest.C)
 target_link_libraries(LegranditeTest ${DNSLIBS} ${LIBRARIESLIST})
 add_test(LegranditeTest ${SERIALEXEC} ${SERIALEXEC_PREFLAGS} LegranditeTest)
 
-add_executable(ConstantVelAdvectTest ConstantVelAdvectTest.C)
-target_link_libraries(ConstantVelAdvectTest ${DNSLIBS} ${LIBRARIESLIST})
-add_test(ConstantVelAdvectTest ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 8 ${MPIEXEC_PREFLAGS} ConstantVelAdvectTest)
-
 add_executable(SiloWriterTest SiloWriterTest.C)
 target_link_libraries(SiloWriterTest ${DNSLIBS} ${LIBRARIESLIST})
 add_test(SiloWriterTest ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 8 ${MPIEXEC_PREFLAGS} SiloWriterTest)
@@ -87,3 +83,8 @@ add_test(LintCompactTest ${SERIALEXEC} ${SERIALEXEC_PREFLAGS} LintCompactTest)
 add_executable(LintExchangeTest LintExchangeTest.C)
 target_link_libraries(LintExchangeTest ${DNSLIBS} ${LIBRARIESLIST})
 add_test(LintExchangeTest ${SERIALEXEC} ${SERIALEXEC_PREFLAGS} LintExchangeTest)
+
+add_executable(ConstantVelAdvectTest ConstantVelAdvectTest.C)
+target_link_libraries(ConstantVelAdvectTest ${DNSLIBS} ${LIBRARIESLIST})
+add_test(ConstantVelAdvectTest ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 27 ${MPIEXEC_PREFLAGS} ConstantVelAdvectTest)
+

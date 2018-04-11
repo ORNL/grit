@@ -87,7 +87,7 @@ class Lint : public std::list<T> {
     }
 
     /* ---------------------------------------------------------------------- */
-    Lint<T> extract(Dust::STATE s=Dust::HEALTHY, bool kill=false) {
+    Lint<T> extract(Dust::STATE s=T::HEALTHY, bool kill=false) {
       Lint <T> newlist;
       for(T p2: *this) {
         if(p2.getcount(s)==0) continue;
@@ -115,7 +115,7 @@ class Lint : public std::list<T> {
         }
         newlist.push_back(p1);
         if (kill) Kokkos::parallel_for(T::NDUST, KOKKOS_LAMBDA(const size_t& n) {
-            if(p2.state(n)==s) p2.state(n)=Dust::UNOCCUPIED;
+            if(p2.state(n)==s) p2.state(n)=T::UNOCCUPIED;
         } );
       }
       newlist.compact();
@@ -200,6 +200,69 @@ class Lint : public std::list<T> {
         writemultivar(it.first+"vec"+char('0'+m));
       DBClose(file);
     }
+
+    /* ---------------------------------------------------------------------- */
+    void exchange(int NX, int NY, int NZ) {
+      exchange_onedirn(0, NX, cartcomm.x, periodic_x);
+      exchange_onedirn(1, NY, cartcomm.y, periodic_y);
+      exchange_onedirn(2, NZ, cartcomm.z, periodic_z);
+      this->compact();
+    }
+
+    /* ---------------------------------------------------------------------- */
+    void exchange_onedirn(int dim, int nmax, boost::mpi::communicator comm, bool periodic) {
+      assert(dim==0 || dim==1 || dim==2);
+      Dust::STATE WENT_LEFT, WENT_RGHT;
+      switch(dim) {
+        case 0: WENT_LEFT=T::WENT_LEFT_X; WENT_RGHT=T::WENT_RGHT_X; break;
+        case 1: WENT_LEFT=T::WENT_LEFT_Y; WENT_RGHT=T::WENT_RGHT_Y; break;
+        case 2: WENT_LEFT=T::WENT_LEFT_Z; WENT_RGHT=T::WENT_RGHT_Z; break;
+      }
+
+      for(T p: *this) {
+        Kokkos::parallel_for(T::NDUST, KOKKOS_LAMBDA(const size_t &n) {
+          if( p.state(n)==T::HEALTHY && p.loc(n, dim)< 0    ) {p.state(n)=WENT_LEFT; p.loc(n, dim)+=nmax;}
+          if( p.state(n)==T::HEALTHY && p.loc(n, dim)>=nmax ) {p.state(n)=WENT_RGHT; p.loc(n, dim)-=nmax;}
+          if((p.state(n)==WENT_LEFT || p.state(n)==WENT_RGHT) && (p.loc(n, dim)<0 || p.loc(n, dim)>=nmax) )
+              p.state(n)=T::WENT_TOO_FAR;
+        } );
+      }
+
+      Lint<T> sleft=this->extract(WENT_LEFT, true);
+      Lint<T> srght=this->extract(WENT_RGHT, true);
+      Lint<T> rleft;
+      Lint<T> rrght;
+
+      for(T p: sleft) {
+        Kokkos::parallel_for(T::NDUST, KOKKOS_LAMBDA(const size_t &n) {
+          if(p.state(n)==WENT_LEFT) p.state(n)=T::HEALTHY;
+        } );
+      }
+      for(T p: srght) {
+        Kokkos::parallel_for(T::NDUST, KOKKOS_LAMBDA(const size_t &n) {
+          if(p.state(n)==WENT_RGHT) p.state(n)=T::HEALTHY;
+        } );
+      }
+
+      int rank=comm.rank();
+      int size=comm.size();
+      int lid = (rank-1+size)%size;
+      int rid = (rank+1+size)%size;
+      if(!periodic && rank==0     ) sleft.clear();
+      if(!periodic && rank==size-1) srght.clear();
+
+      boost::mpi::request reqs[4];
+      reqs[0]=comm.isend(lid, 791, sleft);
+      reqs[1]=comm.isend(rid, 792, srght);
+      reqs[2]=comm.irecv(lid, 792, rleft);
+      reqs[3]=comm.irecv(rid, 791, rrght);
+      boost::mpi::wait_all(reqs, reqs+4);
+
+      this->splice(this->end(), rleft);
+      this->splice(this->end(), rrght);
+      return;
+    }
+
     /* ---------------------------------------------------------------------- */
   private:
     friend class boost::serialization::access;

@@ -185,7 +185,7 @@ namespace boost { namespace serialization {
       ar & boost::serialization::make_array(vHost.ptr_on_device(), Dust::NDUST);
     }
     template<class Archive>
-    void load(Archive &ar, Dust::SSNumbPointType v, const unsigned int version) {
+    void load(Archive &ar, Dust::SSNumbPointType &v, const unsigned int version) {
       Dust::SSNumbPointType::HostMirror vHost = Kokkos::create_mirror_view(v);
       ar & boost::serialization::make_array(vHost.ptr_on_device(), Dust::NDUST);
       Kokkos::deep_copy(v, vHost);
@@ -198,7 +198,7 @@ namespace boost { namespace serialization {
       ar & boost::serialization::make_array(vHost.ptr_on_device(), Dust::NDUST);
     }
     template<class Archive>
-    void load(Archive &ar, Dust::HealthPointType v, const unsigned int version) {
+    void load(Archive &ar, Dust::HealthPointType &v, const unsigned int version) {
       Dust::HealthPointType::HostMirror vHost = Kokkos::create_mirror_view(v);
       ar & boost::serialization::make_array(vHost.ptr_on_device(), Dust::NDUST);
       Kokkos::deep_copy(v, vHost);
@@ -213,7 +213,7 @@ namespace boost { namespace serialization {
       ar & boost::serialization::make_array(vHost.ptr_on_device(), Dust::NDUST);
     }
     template<class Archive>
-    void load(Archive &ar, Dust::ScalarPointType v, const unsigned int version) {
+    void load(Archive &ar, Dust::ScalarPointType &v, const unsigned int version) {
       std::string vLabel;
       ar & vLabel;
       if(v.ptr_on_device()==nullptr) v=Dust::ScalarPointType(vLabel);
@@ -231,7 +231,7 @@ namespace boost { namespace serialization {
       ar & boost::serialization::make_array(vHost.ptr_on_device(), Dust::NDUST*3);
     }
     template<class Archive>
-    void load(Archive &ar, Dust::Vectr3PointType v, const unsigned int version) {
+    void load(Archive &ar, Dust::Vectr3PointType &v, const unsigned int version) {
       std::string vLabel;
       ar & vLabel;
       if(v.ptr_on_device()==nullptr) v=Dust::Vectr3PointType(vLabel);

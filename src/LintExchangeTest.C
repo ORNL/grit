@@ -1,6 +1,5 @@
 #include <random>
 #include <Kokkos_Random.hpp>
-#include "Yarn.h"
 #include "Dust.h"
 #include "Lint.h"
 #include "GlobalVariables.h"
