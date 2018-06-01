@@ -9,7 +9,7 @@ const int px=  3, py=  3, pz=  3;
 
 boost::mpi::communicator globalcomm;
 Corduroy cartcomm;
-Greige globalgrid, localgrid;
+Greige grid, localgrid;
 bool periodic_x=true, periodic_y=true, periodic_z=true;
 
 class DustTest : public Dust {
@@ -29,10 +29,10 @@ int main(int argc, char *argv[]){
   if(globalcomm.rank()==0) Kokkos::DefaultExecutionSpace::print_configuration(std::cout);
   cartcomm=Corduroy(globalcomm, px, py, pz);
 
-  globalgrid=Greige(-3.0,-4.5,-2.8, 0.1, 0.15, 0.12);
-   localgrid=Greige(globalgrid.x(cartcomm.x.rank()*NX),
-                    globalgrid.y(cartcomm.y.rank()*NY),
-                    globalgrid.z(cartcomm.z.rank()*NZ), 0.1, 0.15, 0.12);
+       grid=Greige(-3.0,-4.5,-2.8, 0.1, 0.15, 0.12);
+  localgrid=Greige(grid.x(cartcomm.x.rank()*NX),
+                    grid.y(cartcomm.y.rank()*NY),
+                    grid.z(cartcomm.z.rank()*NZ), 0.1, 0.15, 0.12);
 
   int numparcels=2;
   Lint<DustTest> Parcels;
