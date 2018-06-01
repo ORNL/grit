@@ -26,8 +26,7 @@ class DustTest : public Dust {
 int main(int argc, char *argv[]){
   boost::mpi::environment env(argc, argv);
   Kokkos::initialize();
-  printf ("%s on Kokkos execution space %s\n", argv[0], typeid (Kokkos::DefaultExecutionSpace).name());
-  Kokkos::DefaultExecutionSpace::print_configuration(std::cout);
+  if(globalcomm.rank()==0) Kokkos::DefaultExecutionSpace::print_configuration(std::cout);
   cartcomm=Corduroy(globalcomm, px, py, pz);
 
   globalgrid=Greige(-3.0,-4.5,-2.8, 0.1, 0.15, 0.12);
