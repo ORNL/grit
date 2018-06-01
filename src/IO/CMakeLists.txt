@@ -1,0 +1,1 @@
+add_library(CollectiveSingleFile CollectiveSingleFile.C)
