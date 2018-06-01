@@ -4,7 +4,7 @@
 #include "Lint.h"
 #include "GlobalVariables.h"
 
-const int NX=115, NY= 84, NZ= 93;
+const int NX= 45, NY= 34, NZ= 23;
 const int px=  3, py=  3, pz=  3;
 
 boost::mpi::communicator globalcomm;
@@ -43,8 +43,8 @@ int main(int argc, char *argv[]){
   typedef Kokkos::Random_XorShift64_Pool<> GeneratorPool;
   GeneratorPool pool(34*globalcomm.rank()+729);
 
-  for(int m=0; m<numparcels; m++) {
-    DustTest tracers(100000*globalcomm.rank()+DustTest::NDUST*m);
+  for(int i=0; i<numparcels; i++) {
+    DustTest tracers(100000*globalcomm.rank()+DustTest::NDUST*i);
     DustTest::ScalarPointType D=tracers.ScalarPointVariables.find("D")->second;
     DustTest::Vectr3PointType V=tracers.Vectr3PointVariables.find("V")->second;
 
@@ -67,7 +67,7 @@ int main(int argc, char *argv[]){
   }
 
   Parcels.write_silo("AdvectTest00");
-  for(int n=1; n<=20; n++) {
+  for(int i=1; i<= 5; i++) {
     for(auto p: Parcels) {
       DustTest::Vectr3PointType V=p.Vectr3PointVariables.find("V")->second;
       Kokkos::parallel_for(DustTest::NDUST, KOKKOS_LAMBDA(const size_t& n) {
@@ -78,7 +78,7 @@ int main(int argc, char *argv[]){
     Parcels.exchange(NX, NY, NZ);
 
     char filename[100];
-    sprintf(filename, "AdvectTest%02d", n);
+    sprintf(filename, "AdvectTest%02d", i);
     Parcels.write_silo(filename);
   }
 
