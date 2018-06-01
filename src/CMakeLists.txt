@@ -87,4 +87,5 @@ add_test(LintExchangeTest ${SERIALEXEC} ${SERIALEXEC_PREFLAGS} LintExchangeTest)
 add_executable(ConstantVelAdvectTest ConstantVelAdvectTest.C)
 target_link_libraries(ConstantVelAdvectTest ${DNSLIBS} ${LIBRARIESLIST})
 add_test(ConstantVelAdvectTest ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 27 ${MPIEXEC_PREFLAGS} ConstantVelAdvectTest)
+set_tests_properties(ConstantVelAdvectTest PROPERTIES ENVIRONMENT OMP_NUM_THREADS=2)
 
