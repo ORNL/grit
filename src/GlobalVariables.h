@@ -2,8 +2,8 @@
 #define GLOBALVARIABLES_H
 
 #include <boost/mpi.hpp>
-#include "Corduroy.h"
-#include "Greige.h"
+#include "FDM/Corduroy.h"
+#include "FDM/Greige.h"
 
 extern double simtime;
 extern double timestepsize;

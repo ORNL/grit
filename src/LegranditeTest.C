@@ -1,6 +1,6 @@
-#include "Yarn.h"
+#include "FDM/Yarn.h"
 #include "Dust.h"
-#include "Inego.h"
+#include "FDM/Inego.h"
 #include "Legrandite.h"
 
 #include <Kokkos_Random.hpp>
