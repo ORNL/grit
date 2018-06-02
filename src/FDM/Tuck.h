@@ -18,11 +18,9 @@ class Tuck {
   public:
     /* ---------------------------------------------------------------------- */
     static void tuckx(ScalarFieldType Fg, ScalarFieldType Fi) {
-      size_t NG=(NX+1+2*NH)*(NY+1+2*NH)*(NZ+1+2*NH);
-      size_t NI=(NX       )*(NY+1+2*NH)*(NZ+1+2*NH);
+      assert(   (NX+1+2*NH)*(NY+1+2*NH)*(NZ+1+2*NH) ==  Fg.dimension_0());
+      assert(   (NX       )*(NY+1+2*NH)*(NZ+1+2*NH) ==  Fi.dimension_0());
       size_t NT=(NX+2+4*NH)*(NY+1+2*NH)*(NZ+1+2*NH);
-      assert(  Fg.dimension_0()==NG);
-      assert(  Fi.dimension_0()==NI);
 
       ScalarFieldType Ft("Ft", NT);
       Gossamer<double, NX+1+2*NH, NY+1+2*NH, NZ+1+2*NH, 1+NH,   NH,    0,    0,    0,    0>::fill_ghost(Fg, Ft, true);
@@ -41,11 +39,9 @@ class Tuck {
 
     /* ---------------------------------------------------------------------- */
     static void tucky(ScalarFieldType Fg, ScalarFieldType Fi) {
-      size_t NG=(NX       )*(NY+1+2*NH)*(NZ+1+2*NH);
-      size_t NI=(NX       )*(NY       )*(NZ+1+2*NH);
+      assert(   (NX       )*(NY+1+2*NH)*(NZ+1+2*NH) ==  Fg.dimension_0());
+      assert(   (NX       )*(NY       )*(NZ+1+2*NH) ==  Fi.dimension_0());
       size_t NT=(NX       )*(NY+2+4*NH)*(NZ+1+2*NH);
-      assert(  Fg.dimension_0()==NG);
-      assert(  Fi.dimension_0()==NI);
 
       ScalarFieldType Ft("Ft", NT);
       Gossamer<double, NX       , NY+1+2*NH, NZ+1+2*NH,    0,    0, 1+NH,   NH,    0,    0>::fill_ghost(Fg, Ft, true);
@@ -64,11 +60,9 @@ class Tuck {
 
     /* ---------------------------------------------------------------------- */
     static void tuckz(ScalarFieldType Fg, ScalarFieldType Fi) {
-      size_t NG=(NX       )*(NY       )*(NZ+1+2*NH);
-      size_t NI=(NX       )*(NY       )*(NZ       );
+      assert(   (NX       )*(NY       )*(NZ+1+2*NH) ==  Fg.dimension_0());
+      assert(   (NX       )*(NY       )*(NZ       ) ==  Fi.dimension_0());
       size_t NT=(NX       )*(NY       )*(NZ+2+4*NH);
-      assert(  Fg.dimension_0()==NG);
-      assert(  Fi.dimension_0()==NI);
 
       ScalarFieldType Ft("Ft", NT);
       Gossamer<double, NX       , NY       , NZ+1+2*NH,    0,    0,    0,    0, 1+NH,   NH>::fill_ghost(Fg, Ft, true);
@@ -89,11 +83,8 @@ class Tuck {
     /* ---------------------------------------------------------------------- */
     /* ---------------------------------------------------------------------- */
     static void unfill_ghost(ScalarFieldType Fg, ScalarFieldType Fi) {
-      size_t NG=(NX+1+2*NH)*(NY+1+2*NH)*(NZ+1+2*NH);
-      size_t NI=(NX       )*(NY       )*(NZ       );
-      assert(  Fg.dimension_0()==NG);
-      assert(  Fi.dimension_0()==NI);
-
+      assert(   (NX+1+2*NH)*(NY+1+2*NH)*(NZ+1+2*NH) == Fg.dimension_0());
+      assert(   (NX       )*(NY       )*(NZ       ) == Fi.dimension_0());
       ScalarFieldType Fx("Fx", (NX       )*(NY+1+2*NH)*(NZ+1+2*NH));
       ScalarFieldType Fy("Fy", (NX       )*(NY       )*(NZ+1+2*NH));
       tuckx(Fg,Fx);
