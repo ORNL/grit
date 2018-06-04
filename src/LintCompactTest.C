@@ -23,7 +23,7 @@ class DustTest : public Dust {
 
 int main(int argc, char *argv[]){
   boost::mpi::environment env(argc, argv);
-  Kokkos::initialize();
+  Kokkos::ScopeGuard KokkosScopeGuard;
   printf ("%s on Kokkos execution space %s\n", argv[0], typeid (Kokkos::DefaultExecutionSpace).name());
   Kokkos::DefaultExecutionSpace::print_configuration(std::cout);
 
@@ -85,6 +85,5 @@ int main(int argc, char *argv[]){
   printf("\n");
   Parcels.write_silo("AfterCompact");
 
-  Kokkos::finalize();
 return(0);
 }

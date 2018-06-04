@@ -39,7 +39,7 @@ class DustTest : public Dust {
 };
 
 int main(int argc, char *argv[]){
-  Kokkos::initialize();
+  Kokkos::ScopeGuard KokkosScopeGuard;
   printf ("%s on Kokkos execution space %s\n", argv[0], typeid (Kokkos::DefaultExecutionSpace).name());
   Kokkos::DefaultExecutionSpace::print_configuration(std::cout);
 
@@ -97,6 +97,5 @@ int main(int argc, char *argv[]){
   printf("NH NY NX NZ are %1d %4d %4d %4d\n", NH, NX, NY, NZ);
   printf("L2 norm error is %12.5e\n", err);
 
-  Kokkos::finalize();
   return(0);
 }

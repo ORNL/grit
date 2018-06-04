@@ -47,7 +47,7 @@ class DustTest : public Dust {
 
 int main(int argc, char *argv[]){
   boost::mpi::environment env(argc, argv);
-  Kokkos::initialize();
+  Kokkos::ScopeGuard KokkosScopeGuard;
   if(globalcomm.rank()==0) Kokkos::DefaultExecutionSpace::print_configuration(std::cout);
   cartcomm=Corduroy(globalcomm, 2, 2, 2);
 
@@ -111,6 +111,5 @@ int main(int argc, char *argv[]){
 
   Parcels.write_silo("SiloWriterTest3");
 
-  Kokkos::finalize();
 return(0);
 }

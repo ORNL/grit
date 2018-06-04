@@ -16,7 +16,7 @@ Greige grid, localgrid;
 
 int main(int argc, char *argv[]){
   boost::mpi::environment env(argc, argv);
-  Kokkos::initialize();
+  Kokkos::ScopeGuard KokkosScopeGuard;
   if(globalcomm.rank()==0) Kokkos::DefaultExecutionSpace::print_configuration(std::cout);
 
   param.set("px", std::to_string(px));
@@ -79,6 +79,5 @@ int main(int argc, char *argv[]){
   if(globalcomm.rank()==0)
       WriteBOVforScalarinSingleFile ("TuckG.bov", NX, NY, NZ, "TuckG.dat", "G");
 
-  Kokkos::finalize();
   return(0);
 }

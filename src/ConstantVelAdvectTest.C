@@ -25,7 +25,8 @@ class DustTest : public Dust {
 /* ---------------------------------------------------------------------- */
 int main(int argc, char *argv[]){
   boost::mpi::environment env(argc, argv);
-  Kokkos::initialize();
+  Kokkos::ScopeGuard KokkosScopeGuard;
+
   if(globalcomm.rank()==0) Kokkos::DefaultExecutionSpace::print_configuration(std::cout);
   cartcomm=Corduroy(globalcomm, px, py, pz);
 
@@ -80,8 +81,6 @@ int main(int argc, char *argv[]){
     sprintf(filename, "AdvectTest%02d", i);
     Parcels.write_silo(filename);
   }
-
-  Kokkos::finalize();
 
   return(0);
 }
