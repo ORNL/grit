@@ -17,12 +17,14 @@ include_directories(${KOKKOS_INCLUDE_DIRS})
 find_package(BLAS)
 find_package(LAPACK)
 find_package(Boost COMPONENTS system filesystem mpi serialization program_options REQUIRED)
-include_directories(${BOOST_INCLUDE_DIRS})
+include_directories(${Boost_INCLUDE_DIRS})
 find_package(silo REQUIRED)
 include_directories(${SILO_INCLUDE_DIRS})
 find_package(HDF5 REQUIRED)
 include_directories(${HDF5_INCLUDE_DIRS})
 find_package(MPI REQUIRED)
+
+add_definitions(-DBOOST_NO_AUTO_PTR)
 
 #----------------------------------------------------------------------
 if(GRIT_USE_CUDA)
