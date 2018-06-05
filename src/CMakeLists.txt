@@ -71,6 +71,9 @@ endif()
 #----------------------------------------------------------------------
 set(LIBRARIESLIST ${LAPACK_LIBRARIES} ${Boost_LIBRARIES} ${KOKKOS_LIBRARIES} ${MPI_CXX_LIBRARIES}
         ${SILO_LIBRARIES} ${HDF5_LIBRARIES} ${CMAKE_DL_LIBS})
+if(${HOSTNAME} MATCHES "^percival")
+  set(LIBRARIESLIST ${LIBRARIESLIST} "-lmvec")
+endif()
 include_directories(${CMAKE_SOURCE_DIR})
 
 #----------------------------------------------------------------------
