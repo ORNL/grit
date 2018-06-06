@@ -40,7 +40,6 @@ class DustTest : public Dust {
 
 int main(int argc, char *argv[]){
   Kokkos::ScopeGuard KokkosScopeGuard;
-  printf ("%s on Kokkos execution space %s\n", argv[0], typeid (Kokkos::DefaultExecutionSpace).name());
   Kokkos::DefaultExecutionSpace::print_configuration(std::cout);
 
   double pi=4.0*atan(1.0);

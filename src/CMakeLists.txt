@@ -86,7 +86,7 @@ add_subdirectory(IO)
 
 #----------------------------------------------------------------------
 add_library(Limestone RunParams.C)
-set(DNSLIBS Limestone)
+set(DNSLIBS Limestone CollectiveSingleFile)
 
 add_executable(LegranditeTest LegranditeTest.C)
 target_link_libraries(LegranditeTest ${DNSLIBS} ${LIBRARIESLIST})
@@ -108,3 +108,8 @@ add_executable(ConstantVelAdvectTest ConstantVelAdvectTest.C)
 target_link_libraries(ConstantVelAdvectTest ${DNSLIBS} ${LIBRARIESLIST})
 add_test(ConstantVelAdvectTest ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 27 ${MPIEXEC_PREFLAGS} ConstantVelAdvectTest)
 set_tests_properties(ConstantVelAdvectTest PROPERTIES ENVIRONMENT OMP_NUM_THREADS=2)
+
+add_executable(GoethiteTest GoethiteTest.C)
+target_link_libraries(GoethiteTest ${DNSLIBS} ${LIBRARIESLIST})
+add_test(GoethiteTest ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 27 ${MPIEXEC_PREFLAGS} GoethiteTest)
+set_tests_properties(GoethiteTest PROPERTIES ENVIRONMENT OMP_NUM_THREADS=2)

@@ -12,7 +12,7 @@ const int   px=  3, py=  3, pz=  3;
 RunParams param;
 boost::mpi::communicator globalcomm;
 Corduroy cartcomm;
-Greige grid, localgrid;
+Greige grid;
 
 int main(int argc, char *argv[]){
   boost::mpi::environment env(argc, argv);
@@ -28,10 +28,6 @@ int main(int argc, char *argv[]){
   cartcomm=Corduroy(globalcomm, px, py, pz);
 
        grid=Greige(-3.0,-4.5,-2.8, 0.1, 0.1, 0.1);
-  localgrid=Greige(grid.x(cartcomm.x.rank()*NX),
-                   grid.y(cartcomm.y.rank()*NY),
-                   grid.z(cartcomm.z.rank()*NZ), 0.1, 0.1, 0.1);
-
 
   double pi=4.0*atan(1.0);
   const size_t NP=NX*NY*NZ;
@@ -54,16 +50,16 @@ int main(int argc, char *argv[]){
                * cos((double(rz*NZ+k)+0.5)*kz);
       double filtersum=0.0;
       for(int kk=-NH; kk<2+NH; kk++) {
-      for(int jj=-NH; jj<2+NH; jj++) {
-      for(int ii=-NH; ii<2+NH; ii++) {
+        for(int jj=-NH; jj<2+NH; jj++) {
+          for(int ii=-NH; ii<2+NH; ii++) {
         double delx=ii-0.5;
         double dely=jj-0.5;
         double delz=kk-0.5;
                filtersum +=sqrt(delx*delx+dely*dely+delz*delz);
       } } }
       for(int kk=-NH; kk<2+NH; kk++) {
-      for(int jj=-NH; jj<2+NH; jj++) {
-      for(int ii=-NH; ii<2+NH; ii++) {
+        for(int jj=-NH; jj<2+NH; jj++) {
+          for(int ii=-NH; ii<2+NH; ii++) {
         double delx=ii-0.5;
         double dely=jj-0.5;
         double delz=kk-0.5;
