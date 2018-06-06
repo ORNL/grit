@@ -70,6 +70,7 @@ int main(int argc, char *argv[]){
   size_t NDUST=DustTest::NDUST;
   DustTest tracers;
   Dust::ScalarPointType P("P");
+  Dust::ScalarPointType Q("Q");
   Kokkos::parallel_for(NDUST, KOKKOS_LAMBDA(const size_t& n) {
     double kx=2.0*pi*mx/(px*NX);
     double ky=2.0*pi*my/(px*NY);
@@ -83,9 +84,12 @@ int main(int argc, char *argv[]){
   const size_t NG=(NX+1+2*NH)*(NY+1+2*NH)*(NZ+1+2*NH);
   Yarn::ScalarFieldType F("F", NG);
   Yarn::ScalarFieldType G("G", NP);
+  Yarn::ScalarFieldType H("H", NG);
 
   Goethite<NX,NY,NZ,NH>::deposit(F, tracers.loc, tracers.state, P);
   Tuck    <NX,NY,NZ,NH>::unfill_ghost(F,G);
+  Gossamer<double,NX,NY,NZ,NH,1+NH,NH,1+NH,NH,1+NH>::fill_ghost(G, H, true);
+  Goethite<NX,NY,NZ,NH>::undeposit(H, tracers.loc, tracers.state, Q);
 
   double total_particle;
   Kokkos::parallel_reduce(NDUST, KOKKOS_LAMBDA(const size_t& n, double& lsum) { lsum+=P(n); },total_particle);
@@ -99,10 +103,16 @@ int main(int argc, char *argv[]){
   Kokkos::parallel_reduce(NP, KOKKOS_LAMBDA(const size_t& n, double& lsum) { lsum+=G(n); },total_tuck);
   total_tuck=boost::mpi::all_reduce(globalcomm, total_tuck, std::plus<double>());
 
+  double total_undeposit;
+  Kokkos::parallel_reduce(NDUST, KOKKOS_LAMBDA(const size_t& n, double& lsum) { lsum+=Q(n); },total_undeposit);
+  total_undeposit=boost::mpi::all_reduce(globalcomm, total_undeposit, std::plus<double>());
+
   if(globalcomm.rank()==0) {
-    printf("Total sources: %12.5e %12.5e %12.5e\n", total_particle, total_deposit, total_tuck);
+    printf("Total sources: %12.5e %12.5e %12.5e %12.5e\n", total_particle, total_deposit, total_tuck, total_undeposit);
   }
 
-  if(fabs(total_tuck-total_particle)>1e-8*total_particle) return(1);
+  if(fabs(total_deposit  -total_particle)>1e-8*total_particle) return(1);
+  if(fabs(total_tuck     -total_particle)>1e-8*total_particle) return(1);
+  if(fabs(total_undeposit-total_particle)>1e-8*total_particle) return(1);
   return(0);
 }
