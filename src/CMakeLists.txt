@@ -113,3 +113,8 @@ add_executable(GoethiteTest GoethiteTest.C)
 target_link_libraries(GoethiteTest ${DNSLIBS} ${LIBRARIESLIST})
 add_test(GoethiteTest ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 27 ${MPIEXEC_PREFLAGS} GoethiteTest)
 set_tests_properties(GoethiteTest PROPERTIES ENVIRONMENT OMP_NUM_THREADS=2)
+
+add_executable(SpigotControlTest SpigotControlTest.C)
+target_link_libraries(SpigotControlTest ${DNSLIBS} ${LIBRARIESLIST})
+add_test(SpigotControlTest ${SERIALEXEC} ${SERIALEXEC_PREFLAGS} SpigotControlTest)
+
