@@ -69,6 +69,14 @@ class Goethite {
       deposit(G, loc, state, I);
       Tuck    <NX,NY,NZ,NH>::unfill_ghost(G,T);
       Gossamer<double,NX,NY,NZ,NH,1+NH,NH,1+NH,NH,1+NH>::fill_ghost(T, W, true);
+      undepositW(F, W, loc, state, P);
+    }
+
+    /* ---------------------------------------------------------------------- */
+    static void undepositW(Yarn::StridedScalarFieldType F, Yarn::ScalarFieldType W,
+          Dust::LocationVecType loc, Dust::PointHealthType state, Dust::ScalarPointType P){
+      assert(F.dimension_0()==(NX+1+2*NH)*(NY+1+2*NH)*(NZ+1+2*NH));
+      assert(W.dimension_0()==(NX+1+2*NH)*(NY+1+2*NH)*(NZ+1+2*NH));
 
       Kokkos::parallel_for(Dust::NDUST, KOKKOS_LAMBDA(const size_t& n) { if(state(n)==Dust::HEALTHY) {
           int ix=floor(loc(n,0));

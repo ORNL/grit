@@ -51,6 +51,7 @@ class Dust {
        NBR_NOSPACE          , // !Neighbor has no space to receive
        DIVISION_BY_ZERO     , //
        DRIFTED              , // !Drifted away from the intended location
+       EXTRACT2REPLICATE    , //
        INVALID                //
     };
 

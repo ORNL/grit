@@ -7,8 +7,10 @@
 #include "Goethite.h"
 #include "FDM/Tuck.h"
 #include "IO/CollectiveSingleFile.h"
+#include "Spigot.h"
 
 const int NX= 47, NY= 32, NZ= 29; // Per MPI rank problem size
+const int NH=1;
 const float mx=2.0, my=1.0, mz=1.0; //No. of full waves across NX, NY, NZ
 
 boost::mpi::communicator globalcomm;
@@ -118,35 +120,64 @@ int main(int argc, char *argv[]){
   }
 
   printf("Spigot Control Test originally %4zu parcels with fill percentages = ", Parcels.size());
-  for(DustTest P: Parcels) printf("%9.6f ", 1.0-float(P.getcount(DustTest::UNOCCUPIED))/DustTest::NDUST);
+  for(DustTest P: Parcels) printf("%9.6f ", float(P.getcount(DustTest::HEALTHY))/DustTest::NDUST);
   printf("\n");
   Parcels.write_silo("BeforeSpigot");
 
-  const int NH=1;
+  /* ---------------------------------------------------------------------- */
   const size_t NP=NX*NY*NZ;
   const size_t NG=(NX+1+2*NH)*(NY+1+2*NH)*(NZ+1+2*NH);
+  double expG;
+  {
   Yarn::ScalarFieldType F("F", NG);
   Yarn::ScalarFieldType G("G", NP);
-  DustTest::ScalarPointType I("I");
-  Kokkos::parallel_for(DustTest::NDUST, KOKKOS_LAMBDA(const size_t &n) { I(n)=1.0; } );
-  for(DustTest P: Parcels) Goethite<NX,NY,NZ,NH>::deposit(F, P.loc, P.state, I);
-  Tuck    <NX,NY,NZ,NH>::unfill_ghost(F,G);
+  for(DustTest P: Parcels)
+      Goethite<NX,NY,NZ,NH>::deposit(F, P.loc, P.state, P.ScalarPointVariables.find("W")->second);
+  Tuck<NX,NY,NZ,NH>::unfill_ghost(F,G);
 
-  double expG=0.0, minG, maxG, sumG;
+  double minG, maxG, sumG;
+  expG=0.0;
   for(DustTest P: Parcels) expG+=P.getcount(DustTest::HEALTHY);
   Kokkos::parallel_reduce(NP, calcmin(G), minG);
   Kokkos::parallel_reduce(NP, calcmax(G), maxG);
   Kokkos::parallel_reduce(NP,  KOKKOS_LAMBDA(const size_t& n, double& lsum) { lsum+=G(n); }, sumG);
 
   printf("Expected deposit: %12.5e Actual sum %12.5e \n", expG, sumG);
-  if(sumG!=expG*NX*NY*NZ) return(1);
+  if(fabs(sumG-expG)>1e-8*expG) return(1);
   expG/=double(NX*NY*NZ);
   printf("Expected per point: %12.5e Actual min %12.5e max %12.5e\n", expG, minG, maxG);
+  }
 
-  Yarn::ScalarFieldType D("D", NP);
-  Kokkos::parallel_for(NP, KOKKOS_LAMBDA(const size_t &n) {
-    D(n)=1.0-G(n)/expG;
-  } );
+  /* ---------------------------------------------------------------------- */
+  Lint<DustTest> newParcels = Spigot<DustTest, NX, NY, NZ, NH>::extract2replicate(pool, Parcels, "W", expG);
+  for(DustTest P: newParcels) Parcels.push_back(P);
+
+  printf("Spigot Control Test after      %4zu parcels with fill percentages = ", Parcels.size());
+  for(DustTest P: Parcels) printf("%9.6f ", float(P.getcount(DustTest::HEALTHY))/DustTest::NDUST);
+  printf("\n");
+
+  /* ---------------------------------------------------------------------- */
+  {
+  const size_t NP=NX*NY*NZ;
+  const size_t NG=(NX+1+2*NH)*(NY+1+2*NH)*(NZ+1+2*NH);
+  Yarn::ScalarFieldType F("F", NG);
+  Yarn::ScalarFieldType G("G", NP);
+  for(DustTest P: Parcels)
+      Goethite<NX,NY,NZ,NH>::deposit(F, P.loc, P.state, P.ScalarPointVariables.find("W")->second);
+  Tuck<NX,NY,NZ,NH>::unfill_ghost(F,G);
+
+  double minG, maxG, sumG;
+  expG=0.0;
+  for(DustTest P: Parcels) expG+=P.getcount(DustTest::HEALTHY);
+  Kokkos::parallel_reduce(NP, calcmin(G), minG);
+  Kokkos::parallel_reduce(NP, calcmax(G), maxG);
+  Kokkos::parallel_reduce(NP,  KOKKOS_LAMBDA(const size_t& n, double& lsum) { lsum+=G(n); }, sumG);
+
+  printf("Expected deposit: %12.5e Actual sum %12.5e \n", expG, sumG);
+  if(fabs(sumG-expG)>1e-8*expG) return(1);
+  expG/=double(NX*NY*NZ);
+  printf("Expected per point: %12.5e Actual min %12.5e max %12.5e\n", expG, minG, maxG);
+  }
 
   return(0);
 }
