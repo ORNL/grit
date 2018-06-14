@@ -39,7 +39,7 @@ class Goethite {
                 double delx=ii-rx;
                 double dely=jj-ry;
                 double delz=kk-rz;
-                filtersum +=sqrt(delx*delx+dely*dely+delz*delz);
+                filtersum +=exp(-0.5*(delx*delx+dely*dely+delz*delz));
           } } }
           for(int kk=-NH; kk<2+NH; kk++) {
             for(int jj=-NH; jj<2+NH; jj++) {
@@ -47,7 +47,7 @@ class Goethite {
                 double delx=ii-rx;
                 double dely=jj-ry;
                 double delz=kk-rz;
-                double filtercoeff=sqrt(delx*delx+dely*dely+delz*delz)/filtersum;
+                double filtercoeff=exp(-0.5*(delx*delx+dely*dely+delz*delz) )/filtersum;
                 size_t nn   =   Inego<NX+1+2*NH, NY+1+2*NH, NZ+1+2*NH, -NH, -NH, -NH>(ix+ii,jy+jj,kz+kk) ;
                 Kokkos::atomic_add(&F(nn), filtercoeff*P(n));
           } } }
@@ -93,7 +93,7 @@ class Goethite {
                 double delx=ii-rx;
                 double dely=jj-ry;
                 double delz=kk-rz;
-                filtersum +=sqrt(delx*delx+dely*dely+delz*delz);
+                filtersum +=exp(-0.5*(delx*delx+dely*dely+delz*delz));
           } } }
           P(n)=0.0;
           for(int kk=-NH; kk<2+NH; kk++) {
@@ -102,7 +102,7 @@ class Goethite {
                 double delx=ii-rx;
                 double dely=jj-ry;
                 double delz=kk-rz;
-                double filtercoeff=sqrt(delx*delx+dely*dely+delz*delz)/filtersum;
+                double filtercoeff=exp(-0.5*(delx*delx+dely*dely+delz*delz))/filtersum;
                 size_t nn   =   Inego<NX+1+2*NH, NY+1+2*NH, NZ+1+2*NH, -NH, -NH, -NH>(ix+ii,jy+jj,kz+kk) ;
                 P(n)+=filtercoeff*F(nn)/W(nn);
           } } }

@@ -55,7 +55,7 @@ int main(int argc, char *argv[]){
         double delx=ii-0.5;
         double dely=jj-0.5;
         double delz=kk-0.5;
-               filtersum +=sqrt(delx*delx+dely*dely+delz*delz);
+               filtersum +=exp(-0.5*(delx*delx+dely*dely+delz*delz));
       } } }
       for(int kk=-NH; kk<2+NH; kk++) {
         for(int jj=-NH; jj<2+NH; jj++) {
@@ -63,7 +63,7 @@ int main(int argc, char *argv[]){
         double delx=ii-0.5;
         double dely=jj-0.5;
         double delz=kk-0.5;
-        double filtercoeff=sqrt(delx*delx+dely*dely+delz*delz)/filtersum;
+        double filtercoeff=exp(-0.5*(delx*delx+dely*dely+delz*delz))/filtersum;
         size_t nn   =   Inego<NX+1+2*NH, NY+1+2*NH, NZ+1+2*NH, -NH, -NH, -NH>(i+ii,j+jj,k+kk) ;
         Kokkos::atomic_add(&F(nn), filtercoeff*C);
       } } }
