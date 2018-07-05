@@ -66,6 +66,11 @@ elseif(${HOSTNAME} MATCHES "^percival")
   set(MPIEXEC "aprun")
   set(MPIEXEC_NUMPROC_FLAG "-n")
   set(LAPACK_LIBRARIES "") #Compiler brings this in
+elseif(${HOSTNAME} MATCHES "^titan")
+  set(SERIALEXEC "aprun")
+  set(MPIEXEC "aprun")
+  set(MPIEXEC_NUMPROC_FLAG "-n")
+  set(LAPACK_LIBRARIES "") #Compiler brings this in
 endif()
 
 #----------------------------------------------------------------------
