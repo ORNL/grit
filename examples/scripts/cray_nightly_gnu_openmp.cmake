@@ -1,4 +1,4 @@
-get_filename_component(GRIT_TEST_ROOT_DIRECTORY "$ENV{HOME}/grit/workspace/nightly-percival-openmp" REALPATH)
+get_filename_component(GRIT_TEST_ROOT_DIRECTORY "$ENV{HOME}/grit/workspace/nightly-gnu-openmp" REALPATH)
 set(CTEST_SOURCE_DIRECTORY "${GRIT_TEST_ROOT_DIRECTORY}/grit/src")
 set(CTEST_BINARY_DIRECTORY "${GRIT_TEST_ROOT_DIRECTORY}/build")
 

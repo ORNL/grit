@@ -20,7 +20,8 @@ date
 NEXTRUNTIME=`date --date="tomorrow 1AM" +%m:%d:%H:%M`
 bsub -b $NEXTRUNTIME /ccs/home/rsankar/grit/examples/scripts/summit_nightly_job.sh
 
-export CTEST_SITE="summit.ccs.ornl.gov"
+export    HOSTNAME="summit"
+export  CTEST_SITE="summit"
 export   BOOST_DIR=$HOME/mysw/summit_gcc640/boost-1.67.0
 export  KOKKOS_DIR=$HOME/mysw/summit_gcc640/kokkosCuda9.2.64_d3a9419
 export    SILO_DIR=$HOME/mysw/summit_gcc640/silo-4.10.2
