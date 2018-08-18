@@ -3,8 +3,11 @@
 
 #include <list>
 #include <map>
+#include <fstream>
 #include <boost/filesystem.hpp>
 #include <boost/serialization/list.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
 #include "GlobalVariables.h"
 #include "Dust.h"
 
@@ -261,6 +264,32 @@ class Lint : public std::list<T> {
       this->splice(this->end(), rleft);
       this->splice(this->end(), rrght);
       return;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    void checkpoint(std::string prefix="Lint") const {
+      if(globalcomm.rank()==0) {
+        std::string dirname=prefix+"_ckptdir";
+        if(!boost::filesystem::exists(dirname)) {
+          boost::filesystem::path dir(dirname);
+          boost::filesystem::create_directory(dir);
+        }
+      }
+      globalcomm.barrier();
+      char filename[1000];
+      sprintf(filename, "%s_ckptdir/%06d.ckpt", prefix.c_str(), globalcomm.rank());
+      std::ofstream ofs(filename, std::ios::binary);
+      boost::archive::binary_oarchive oa(ofs);
+      oa << *this;
+    }
+
+    /* ---------------------------------------------------------------------- */
+    void restore(std::string prefix) {
+      char filename[1000];
+      sprintf(filename, "%s_ckptdir/%06d.ckpt", prefix.c_str(), globalcomm.rank());
+      std::ifstream ifs(filename, std::ios::binary);
+      boost::archive::binary_iarchive ia(ifs);
+      ia >> *this;
     }
 
     /* ---------------------------------------------------------------------- */

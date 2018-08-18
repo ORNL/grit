@@ -101,6 +101,10 @@ add_executable(SiloWriterTest SiloWriterTest.C)
 target_link_libraries(SiloWriterTest ${DNSLIBS} ${LIBRARIESLIST})
 add_test(SiloWriterTest ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 8 ${MPIEXEC_PREFLAGS} SiloWriterTest)
 
+add_executable(RestartTest RestartTest.C)
+target_link_libraries(RestartTest ${DNSLIBS} ${LIBRARIESLIST})
+add_test(RestartTest ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 8 ${MPIEXEC_PREFLAGS} RestartTest)
+
 add_executable(LintCompactTest LintCompactTest.C)
 target_link_libraries(LintCompactTest ${DNSLIBS} ${LIBRARIESLIST})
 add_test(LintCompactTest ${SERIALEXEC} ${SERIALEXEC_PREFLAGS} LintCompactTest)
