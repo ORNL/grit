@@ -39,6 +39,17 @@ class Corduroy {
       y=yz.split(zid, yid); 
       z=zx.split(xid, zid); 
     }; 
+    /* ---------------------------------------------------------------------- */
+    Corduroy(const MPI_Fint& x_,  const MPI_Fint& y_,  const MPI_Fint& z_,
+             const MPI_Fint& xy_, const MPI_Fint& yz_, const MPI_Fint& zx_) {
+      x = boost::mpi::communicator(MPI_Comm_f2c( x_), boost::mpi::comm_attach);
+      y = boost::mpi::communicator(MPI_Comm_f2c( y_), boost::mpi::comm_attach);
+      z = boost::mpi::communicator(MPI_Comm_f2c( z_), boost::mpi::comm_attach);
+      xy= boost::mpi::communicator(MPI_Comm_f2c( xy_), boost::mpi::comm_attach);
+      yz= boost::mpi::communicator(MPI_Comm_f2c( yz_), boost::mpi::comm_attach);
+      zx= boost::mpi::communicator(MPI_Comm_f2c( zx_), boost::mpi::comm_attach);
+    };
+    /* ---------------------------------------------------------------------- */
 }; 
 
 #endif
