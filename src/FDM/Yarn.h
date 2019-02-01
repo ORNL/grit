@@ -15,6 +15,10 @@ class Yarn {
 
     typedef Kokkos::View<double *, Kokkos::LayoutStride> StridedScalarFieldType;
 
+    typedef Kokkos::View<const double *>      ConstScalarFieldType;
+    typedef Kokkos::View<const double **>     ConstVectorFieldType;
+    typedef Kokkos::View<const double ***>    ConstTensorFieldType;
+
     //----------------------------------------
     static void NativeArrayToScalarField(int NP, double *A, ScalarFieldType F){
       FortranArrayToScalarField(NP, A, F);

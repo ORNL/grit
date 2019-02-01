@@ -25,6 +25,10 @@ class Dust {
     typedef Vectr3PointType LocationVecType;
     typedef HealthPointType PointHealthType;
 
+    typedef Kokkos::View<const double   [NDUST]    > ConstScalarPointType;
+    typedef Kokkos::View<const double   [NDUST][3] > ConstVectr3PointType;
+    typedef ConstVectr3PointType ConstLocatnPointType;
+
     SSNumbPointType ssn  ;
     HealthPointType state;
     LocatnPointType loc  ;
