@@ -8,9 +8,9 @@ const int NX= 45, NY= 34, NZ= 23;
 const int px=  3, py=  3, pz=  3;
 
 boost::mpi::communicator globalcomm;
+RunParams param;
 Corduroy cartcomm;
 Greige grid, localgrid;
-bool periodic_x=true, periodic_y=true, periodic_z=true;
 
 class DustTest : public Dust {
   public:
@@ -28,6 +28,9 @@ int main(int argc, char *argv[]){
   Kokkos::ScopeGuard KokkosScopeGuard;
 
   if(globalcomm.rank()==0) Kokkos::DefaultExecutionSpace::print_configuration(std::cout);
+  param.set("periodic_x", "true");
+  param.set("periodic_y", "true");
+  param.set("periodic_z", "true" );
   cartcomm=Corduroy(globalcomm, px, py, pz);
 
        grid=Greige(-3.0,-4.5,-2.8, 0.1, 0.15, 0.12);

@@ -206,9 +206,9 @@ class Lint : public std::list<T> {
 
     /* ---------------------------------------------------------------------- */
     void exchange(int NX, int NY, int NZ) {
-      exchange_onedirn(0, NX, cartcomm.x, periodic_x);
-      exchange_onedirn(1, NY, cartcomm.y, periodic_y);
-      exchange_onedirn(2, NZ, cartcomm.z, periodic_z);
+      exchange_onedirn(0, NX, cartcomm.x, param.getbool("periodic_x"));
+      exchange_onedirn(1, NY, cartcomm.y, param.getbool("periodic_y"));
+      exchange_onedirn(2, NZ, cartcomm.z, param.getbool("periodic_z"));
       this->compact();
     }
 

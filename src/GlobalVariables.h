@@ -13,6 +13,5 @@ extern RunParams param;
 extern boost::mpi::communicator globalcomm;
 extern Corduroy cartcomm;
 extern Greige grid, localgrid;
-extern bool periodic_x, periodic_y, periodic_z;
 
 #endif
