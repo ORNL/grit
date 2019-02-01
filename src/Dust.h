@@ -18,6 +18,7 @@ class Dust {
 
     typedef Kokkos::View<double   [NDUST]    > ScalarPointType;
     typedef Kokkos::View<double   [NDUST][3] > Vectr3PointType;
+    typedef Kokkos::View<double [NDUST], Kokkos::LayoutStride> StridedScalarPointType;
     typedef Kokkos::View<st_type  [NDUST]    > HealthPointType;
     typedef Kokkos::View<uint64_t [NDUST]    > SSNumbPointType;
     typedef Vectr3PointType LocatnPointType;
