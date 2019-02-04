@@ -64,6 +64,50 @@ class Goethite {
     }
 
     /* ---------------------------------------------------------------------- */
+    static void depositVectr3(Yarn::VectorFieldType F,
+          Dust::LocationVecType loc, Dust::PointHealthType state, Dust::Vectr3PointType P){
+      assert(F.dimension_0()==(NX+1+2*NH)*(NY+1+2*NH)*(NZ+1+2*NH));
+      Dust::ScalarPointType W("W");
+      Kokkos::parallel_for(Dust::NDUST, KOKKOS_LAMBDA(const size_t& n) { W(n)=1.0;} );
+      depositVectr3(F, loc, state, P, W);
+    }
+
+    /* ---------------------------------------------------------------------- */
+    static void depositVectr3(Yarn::VectorFieldType F,
+          Dust::LocationVecType loc, Dust::PointHealthType state, Dust::Vectr3PointType P, Dust::ScalarPointType W){
+      assert(F.dimension_0()==(NX+1+2*NH)*(NY+1+2*NH)*(NZ+1+2*NH));
+
+      Kokkos::parallel_for(Dust::NDUST, KOKKOS_LAMBDA(const size_t& n) { if(state(n)==Dust::HEALTHY) {
+          int ix=floor(loc(n,0));
+          int jy=floor(loc(n,1));
+          int kz=floor(loc(n,2));
+          double rx=loc(n,0)-double(ix);
+          double ry=loc(n,1)-double(jy);
+          double rz=loc(n,2)-double(kz);
+
+          double filtersum=0.0;
+          for(int kk=-NH; kk<2+NH; kk++) {
+            for(int jj=-NH; jj<2+NH; jj++) {
+              for(int ii=-NH; ii<2+NH; ii++) {
+                double delx=ii-rx;
+                double dely=jj-ry;
+                double delz=kk-rz;
+                filtersum +=exp(-0.5*(delx*delx+dely*dely+delz*delz));
+          } } }
+          for(int kk=-NH; kk<2+NH; kk++) {
+            for(int jj=-NH; jj<2+NH; jj++) {
+              for(int ii=-NH; ii<2+NH; ii++) {
+                double delx=ii-rx;
+                double dely=jj-ry;
+                double delz=kk-rz;
+                double filtercoeff=exp(-0.5*(delx*delx+dely*dely+delz*delz) )/filtersum;
+                size_t nn   =   Inego<NX+1+2*NH, NY+1+2*NH, NZ+1+2*NH, -NH, -NH, -NH>(ix+ii,jy+jj,kz+kk) ;
+                for(int l=0; l<3; l++) Kokkos::atomic_add(&F(nn,l), filtercoeff*P(n,l)*W(n));
+          } } }
+      } } );
+    }
+
+    /* ---------------------------------------------------------------------- */
     static void undeposit(Yarn::StridedScalarFieldType F,
           Dust::LocationVecType loc, Dust::PointHealthType state, Dust::ScalarPointType P){
       assert(F.dimension_0()==(NX+1+2*NH)*(NY+1+2*NH)*(NZ+1+2*NH));
