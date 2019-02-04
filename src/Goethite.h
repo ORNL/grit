@@ -23,6 +23,15 @@ class Goethite {
     static void deposit(Yarn::StridedScalarFieldType F,
           Dust::LocationVecType loc, Dust::PointHealthType state, Dust::ScalarPointType P){
       assert(F.dimension_0()==(NX+1+2*NH)*(NY+1+2*NH)*(NZ+1+2*NH));
+      Dust::ScalarPointType W("W");
+      Kokkos::parallel_for(Dust::NDUST, KOKKOS_LAMBDA(const size_t& n) { W(n)=1.0;} );
+      deposit(F, loc, state, P, W);
+    }
+
+    /* ---------------------------------------------------------------------- */
+    static void deposit(Yarn::StridedScalarFieldType F,
+          Dust::LocationVecType loc, Dust::PointHealthType state, Dust::ScalarPointType P, Dust::ScalarPointType W){
+      assert(F.dimension_0()==(NX+1+2*NH)*(NY+1+2*NH)*(NZ+1+2*NH));
 
       Kokkos::parallel_for(Dust::NDUST, KOKKOS_LAMBDA(const size_t& n) { if(state(n)==Dust::HEALTHY) {
           int ix=floor(loc(n,0));
@@ -49,7 +58,7 @@ class Goethite {
                 double delz=kk-rz;
                 double filtercoeff=exp(-0.5*(delx*delx+dely*dely+delz*delz) )/filtersum;
                 size_t nn   =   Inego<NX+1+2*NH, NY+1+2*NH, NZ+1+2*NH, -NH, -NH, -NH>(ix+ii,jy+jj,kz+kk) ;
-                Kokkos::atomic_add(&F(nn), filtercoeff*P(n));
+                Kokkos::atomic_add(&F(nn), filtercoeff*P(n)*W(n));
           } } }
       } } );
     }
