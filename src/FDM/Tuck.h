@@ -14,6 +14,7 @@ template<int NX, int NY, int NZ, int NH=0>
 class Tuck {
   private:
     typedef Yarn::ScalarFieldType ScalarFieldType;
+    typedef Yarn::VectorFieldType VectorFieldType;
 
   public:
     /* ---------------------------------------------------------------------- */
@@ -90,6 +91,18 @@ class Tuck {
       tuckx(Fg,Fx);
       tucky(Fx,Fy);
       tuckz(Fy,Fi);
+    }
+    /* ---------------------------------------------------------------------- */
+    static void unfill_ghost(int NV, VectorFieldType Fg, VectorFieldType Fi) {
+      assert(   (NX+1+2*NH)*(NY+1+2*NH)*(NZ+1+2*NH) == Fg.dimension_0());
+      assert(   (NX       )*(NY       )*(NZ       ) == Fi.dimension_0());
+      ScalarFieldType Sg("SG", (NX+1+2*NH)*(NY+1+2*NH)*(NZ+1+2*NH));
+      ScalarFieldType Si("Si", (NX       )*(NY       )*(NZ       ));
+      for(int l=0; l<NV; l++) {
+        Kokkos::parallel_for((NX+1+2*NH)*(NY+1+2*NH)*(NZ+1+2*NH), KOKKOS_LAMBDA (const size_t & n) { Sg(n)=Fg(n,l); });
+        Tuck    <NX,NY,NZ,NH>::unfill_ghost(Sg,Si);
+        Kokkos::parallel_for((NX       )*(NY       )*(NZ       ), KOKKOS_LAMBDA (const size_t & n) { Fi(n,l)=Si(n); });
+      }
     }
 };
 #endif

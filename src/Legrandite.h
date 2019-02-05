@@ -42,6 +42,21 @@ class Legrandite {
       } );
     }
 
+    /* ---------------------------------------------------------------------- */
+    static void interpolate(int NX, int NY, int NZ, int NV,
+            Yarn::VectorFieldType F, Dust::LocationVecType loc,
+            Dust::PointHealthType state, Dust::Vectr3PointType P){
+      assert(F.dimension_0()==(NX+1+2*NH)*(NY+1+2*NH)*(NZ+1+2*NH));
+      assert(NV==3);
+
+      Yarn::StridedScalarFieldType F1("SG", (NX+1+2*NH)*(NY+1+2*NH)*(NZ+1+2*NH));
+      Dust::StridedScalarPointType P1("Si", (NX       )*(NY       )*(NZ       ));
+      for(int l=0; l<NV; l++) {
+        F1=Kokkos::subview( F, Kokkos::ALL(), l);
+        P1=Kokkos::subview( P, Kokkos::ALL(), l);
+        interpolate(NX, NY, NZ, F1, loc, state, P1);
+      }
+    }
 };
 
 #endif
