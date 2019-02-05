@@ -1,6 +1,10 @@
 #ifndef DUST_H
 #define DUST_H
 
+#if !defined(BLOCKNDUST)
+#define BLOCKNDUST 1024
+#endif
+
 #include <cstdint>
 #include <map>
 #include <silo.h>
@@ -12,7 +16,7 @@
 
 class Dust {
   public:
-    static const size_t NDUST=1024;
+    static const size_t NDUST=BLOCKNDUST;
     enum STATE : uint32_t;
     using st_type = typename std::underlying_type<STATE>::type;
 
