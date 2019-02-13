@@ -86,6 +86,7 @@ message(STATUS "HOSTNAME is " ${HOSTNAME})
 message(STATUS "CMAKE_BUILD_TYPE is " ${CMAKE_BUILD_TYPE})
 
 #----------------------------------------------------------------------
+add_subdirectory(init)
 add_subdirectory(FDM)
 add_subdirectory(IO)
 
