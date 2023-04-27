@@ -56,8 +56,8 @@ class Gossamer {
         typename ScalarFieldType::HostMirror Hostgrsend=Kokkos::create_mirror_view(grsend);
         typename ScalarFieldType::HostMirror Hostglrecv=Kokkos::create_mirror_view(glrecv);
         Kokkos::deep_copy(Hostgrsend, grsend);
-        reqs[0]=cartcomm.x.isend(rid, 61, (T*) Hostgrsend.ptr_on_device(), NGHOST);
-        reqs[1]=cartcomm.x.irecv(lid, 61, (T*) Hostglrecv.ptr_on_device(), NGHOST);
+        reqs[0]=cartcomm.x.isend(rid, 61, (T*) Hostgrsend.data(), NGHOST);
+        reqs[1]=cartcomm.x.irecv(lid, 61, (T*) Hostglrecv.data(), NGHOST);
         boost::mpi::wait_all(reqs, reqs+2);
         Kokkos::deep_copy(glrecv,Hostglrecv);
       };
@@ -114,8 +114,8 @@ class Gossamer {
         typename ScalarFieldType::HostMirror Hostglsend=Kokkos::create_mirror_view(glsend);
         typename ScalarFieldType::HostMirror Hostgrrecv=Kokkos::create_mirror_view(grrecv);
         Kokkos::deep_copy(Hostglsend, glsend);
-        reqs[0]=cartcomm.x.isend(lid, 62, (T*) Hostglsend.ptr_on_device(), NGHOST);
-        reqs[1]=cartcomm.x.irecv(rid, 62, (T*) Hostgrrecv.ptr_on_device(), NGHOST);
+        reqs[0]=cartcomm.x.isend(lid, 62, (T*) Hostglsend.data(), NGHOST);
+        reqs[1]=cartcomm.x.irecv(rid, 62, (T*) Hostgrrecv.data(), NGHOST);
         boost::mpi::wait_all(reqs, reqs+2);
         Kokkos::deep_copy(grrecv,Hostgrrecv);
       };
@@ -172,8 +172,8 @@ class Gossamer {
         typename ScalarFieldType::HostMirror Hostgrsend=Kokkos::create_mirror_view(grsend);
         typename ScalarFieldType::HostMirror Hostglrecv=Kokkos::create_mirror_view(glrecv);
         Kokkos::deep_copy(Hostgrsend, grsend);
-        reqs[0]=cartcomm.y.isend(rid, 63, (T*) Hostgrsend.ptr_on_device(), NGHOST);
-        reqs[1]=cartcomm.y.irecv(lid, 63, (T*) Hostglrecv.ptr_on_device(), NGHOST);
+        reqs[0]=cartcomm.y.isend(rid, 63, (T*) Hostgrsend.data(), NGHOST);
+        reqs[1]=cartcomm.y.irecv(lid, 63, (T*) Hostglrecv.data(), NGHOST);
         boost::mpi::wait_all(reqs, reqs+2);
         Kokkos::deep_copy(glrecv,Hostglrecv);
       };
@@ -230,8 +230,8 @@ class Gossamer {
         typename ScalarFieldType::HostMirror Hostglsend=Kokkos::create_mirror_view(glsend);
         typename ScalarFieldType::HostMirror Hostgrrecv=Kokkos::create_mirror_view(grrecv);
         Kokkos::deep_copy(Hostglsend, glsend);
-        reqs[0]=cartcomm.y.isend(lid, 64, (T*) Hostglsend.ptr_on_device(), NGHOST);
-        reqs[1]=cartcomm.y.irecv(rid, 64, (T*) Hostgrrecv.ptr_on_device(), NGHOST);
+        reqs[0]=cartcomm.y.isend(lid, 64, (T*) Hostglsend.data(), NGHOST);
+        reqs[1]=cartcomm.y.irecv(rid, 64, (T*) Hostgrrecv.data(), NGHOST);
         boost::mpi::wait_all(reqs, reqs+2);
         Kokkos::deep_copy(grrecv,Hostgrrecv);
       };
@@ -288,8 +288,8 @@ class Gossamer {
         typename ScalarFieldType::HostMirror Hostgrsend=Kokkos::create_mirror_view(grsend);
         typename ScalarFieldType::HostMirror Hostglrecv=Kokkos::create_mirror_view(glrecv);
         Kokkos::deep_copy(Hostgrsend, grsend);
-        reqs[0]=cartcomm.z.isend(rid, 65, (T*) Hostgrsend.ptr_on_device(), NGHOST);
-        reqs[1]=cartcomm.z.irecv(lid, 65, (T*) Hostglrecv.ptr_on_device(), NGHOST);
+        reqs[0]=cartcomm.z.isend(rid, 65, (T*) Hostgrsend.data(), NGHOST);
+        reqs[1]=cartcomm.z.irecv(lid, 65, (T*) Hostglrecv.data(), NGHOST);
         boost::mpi::wait_all(reqs, reqs+2);
         Kokkos::deep_copy(glrecv,Hostglrecv);
       };
@@ -346,8 +346,8 @@ class Gossamer {
         typename ScalarFieldType::HostMirror Hostglsend=Kokkos::create_mirror_view(glsend);
         typename ScalarFieldType::HostMirror Hostgrrecv=Kokkos::create_mirror_view(grrecv);
         Kokkos::deep_copy(Hostglsend, glsend);
-        reqs[0]=cartcomm.z.isend(lid, 66, (T*) Hostglsend.ptr_on_device(), NGHOST);
-        reqs[1]=cartcomm.z.irecv(rid, 66, (T*) Hostgrrecv.ptr_on_device(), NGHOST);
+        reqs[0]=cartcomm.z.isend(lid, 66, (T*) Hostglsend.data(), NGHOST);
+        reqs[1]=cartcomm.z.irecv(rid, 66, (T*) Hostgrrecv.data(), NGHOST);
         boost::mpi::wait_all(reqs, reqs+2);
         Kokkos::deep_copy(grrecv,Hostgrrecv);
       };

@@ -192,12 +192,12 @@ namespace boost { namespace serialization {
     void save(Archive &ar, Dust::SSNumbPointType v, const unsigned int version) {
       Dust::SSNumbPointType::HostMirror vHost = Kokkos::create_mirror_view(v);
       Kokkos::deep_copy(vHost, v);
-      ar & boost::serialization::make_array(vHost.ptr_on_device(), Dust::NDUST);
+      ar & boost::serialization::make_array(vHost.data(), Dust::NDUST);
     }
     template<class Archive>
     void load(Archive &ar, Dust::SSNumbPointType &v, const unsigned int version) {
       Dust::SSNumbPointType::HostMirror vHost = Kokkos::create_mirror_view(v);
-      ar & boost::serialization::make_array(vHost.ptr_on_device(), Dust::NDUST);
+      ar & boost::serialization::make_array(vHost.data(), Dust::NDUST);
       Kokkos::deep_copy(v, vHost);
     }
     /* ---------------------------------------------------------------------- */
@@ -205,12 +205,12 @@ namespace boost { namespace serialization {
     void save(Archive &ar, Dust::HealthPointType v, const unsigned int version) {
       Dust::HealthPointType::HostMirror vHost = Kokkos::create_mirror_view(v);
       Kokkos::deep_copy(vHost, v);
-      ar & boost::serialization::make_array(vHost.ptr_on_device(), Dust::NDUST);
+      ar & boost::serialization::make_array(vHost.data(), Dust::NDUST);
     }
     template<class Archive>
     void load(Archive &ar, Dust::HealthPointType &v, const unsigned int version) {
       Dust::HealthPointType::HostMirror vHost = Kokkos::create_mirror_view(v);
-      ar & boost::serialization::make_array(vHost.ptr_on_device(), Dust::NDUST);
+      ar & boost::serialization::make_array(vHost.data(), Dust::NDUST);
       Kokkos::deep_copy(v, vHost);
     }
     /* ---------------------------------------------------------------------- */
@@ -220,15 +220,15 @@ namespace boost { namespace serialization {
       ar & vLabel;
       Dust::ScalarPointType::HostMirror vHost = Kokkos::create_mirror_view(v);
       Kokkos::deep_copy(vHost, v);
-      ar & boost::serialization::make_array(vHost.ptr_on_device(), Dust::NDUST);
+      ar & boost::serialization::make_array(vHost.data(), Dust::NDUST);
     }
     template<class Archive>
     void load(Archive &ar, Dust::ScalarPointType &v, const unsigned int version) {
       std::string vLabel;
       ar & vLabel;
-      if(v.ptr_on_device()==nullptr) v=Dust::ScalarPointType(vLabel);
+      if(v.data()==nullptr) v=Dust::ScalarPointType(vLabel);
       Dust::ScalarPointType::HostMirror vHost = Kokkos::create_mirror_view(v);
-      ar & boost::serialization::make_array(vHost.ptr_on_device(), Dust::NDUST);
+      ar & boost::serialization::make_array(vHost.data(), Dust::NDUST);
       Kokkos::deep_copy(v, vHost);
     }
     /* ---------------------------------------------------------------------- */
@@ -238,15 +238,15 @@ namespace boost { namespace serialization {
       ar & vLabel;
       Dust::Vectr3PointType::HostMirror vHost = Kokkos::create_mirror_view(v);
       Kokkos::deep_copy(vHost, v);
-      ar & boost::serialization::make_array(vHost.ptr_on_device(), Dust::NDUST*3);
+      ar & boost::serialization::make_array(vHost.data(), Dust::NDUST*3);
     }
     template<class Archive>
     void load(Archive &ar, Dust::Vectr3PointType &v, const unsigned int version) {
       std::string vLabel;
       ar & vLabel;
-      if(v.ptr_on_device()==nullptr) v=Dust::Vectr3PointType(vLabel);
+      if(v.data()==nullptr) v=Dust::Vectr3PointType(vLabel);
       Dust::Vectr3PointType::HostMirror vHost = Kokkos::create_mirror_view(v);
-      ar & boost::serialization::make_array(vHost.ptr_on_device(), Dust::NDUST*3);
+      ar & boost::serialization::make_array(vHost.data(), Dust::NDUST*3);
       Kokkos::deep_copy(v, vHost);
     }
     /* ---------------------------------------------------------------------- */

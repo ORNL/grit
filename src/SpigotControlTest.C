@@ -73,7 +73,7 @@ struct calcmin {
 int main(int argc, char *argv[]){
   boost::mpi::environment env(argc, argv);
   Kokkos::ScopeGuard KokkosScopeGuard;
-  Kokkos::DefaultExecutionSpace::print_configuration(std::cout);
+  Kokkos::print_configuration(std::cout);
 
   param.set("periodic_x", "true");
   param.set("periodic_y", "true");

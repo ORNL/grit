@@ -25,7 +25,7 @@ int main(int argc, char *argv[]){
   boost::mpi::environment env(argc, argv);
   Kokkos::ScopeGuard KokkosScopeGuard;
   printf ("%s on Kokkos execution space %s\n", argv[0], typeid (Kokkos::DefaultExecutionSpace).name());
-  Kokkos::DefaultExecutionSpace::print_configuration(std::cout);
+  Kokkos::print_configuration(std::cout);
 
        grid=Greige(-3.0,-4.5,-2.8, 0.1, 0.15, 0.12);
   localgrid=Greige(-3.0,-4.5,-2.8, 0.1, 0.15, 0.12);
