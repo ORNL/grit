@@ -17,7 +17,7 @@ Greige grid;
 int main(int argc, char *argv[]){
   boost::mpi::environment env(argc, argv);
   Kokkos::ScopeGuard KokkosScopeGuard;
-  if(globalcomm.rank()==0) Kokkos::DefaultExecutionSpace::print_configuration(std::cout);
+  if(globalcomm.rank()==0) Kokkos::print_configuration(std::cout);
 
   param.set("px", std::to_string(px));
   param.set("py", std::to_string(py));

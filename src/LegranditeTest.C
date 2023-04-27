@@ -40,7 +40,7 @@ class DustTest : public Dust {
 
 int main(int argc, char *argv[]){
   Kokkos::ScopeGuard KokkosScopeGuard;
-  Kokkos::DefaultExecutionSpace::print_configuration(std::cout);
+  Kokkos::print_configuration(std::cout);
 
   double pi=4.0*atan(1.0);
   const size_t NG=(NX+1+2*NH)*(NY+1+2*NH)*(NZ+1+2*NH);

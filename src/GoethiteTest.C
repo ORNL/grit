@@ -7,7 +7,7 @@
 #include "FDM/Greige.h"
 #include <Kokkos_Random.hpp>
 
-const int NX= 47, NY= 73, NZ=107; // Per MPI rank problem size
+const int NX= 47, NY= 72, NZ=107; // Per MPI rank problem size
 const int NH=1;
 const float mx=1.0, my=2.0, mz=3.0; //No. of full waves across NX, NY, NZ
 const int   px=  3, py=  3, pz=  3;
@@ -51,7 +51,7 @@ class DustTest: public Dust {
 int main(int argc, char *argv[]){
   boost::mpi::environment env(argc,argv);
   Kokkos::ScopeGuard KokkosScopeGuard;
-  if(globalcomm.rank()==0) Kokkos::DefaultExecutionSpace::print_configuration(std::cout);
+  if(globalcomm.rank()==0) Kokkos::print_configuration(std::cout);
 
   param.set("px", std::to_string(px));
   param.set("py", std::to_string(py));

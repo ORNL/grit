@@ -27,7 +27,7 @@ int main(int argc, char *argv[]){
   boost::mpi::environment env(argc, argv);
   Kokkos::ScopeGuard KokkosScopeGuard;
 
-  if(globalcomm.rank()==0) Kokkos::DefaultExecutionSpace::print_configuration(std::cout);
+  if(globalcomm.rank()==0) Kokkos::print_configuration(std::cout);
   param.set("periodic_x", "true");
   param.set("periodic_y", "true");
   param.set("periodic_z", "true" );
